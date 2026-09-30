@@ -1,0 +1,230 @@
+/* The invitation, from the envelope to the pages. Written for phones first, widened for desktop. Paper
+   and ink with one olive accent; Newsreader for reading and the script for titles. Things move when
+   someone opens or closes something: the envelope washes to white, the pieces drop onto the table, and
+   pages grow out of the piece that opened them. */
+
+:root {
+  --paper: #f4f0e7;
+  --card: #fbf8f1;
+  --ink: #2e2823;
+  --ink-soft: #6b6257;
+  --olive: #4e5538;
+  --olive-deep: #3c4229;
+  --rule: #cdbfa6;
+  --field: #d3c8b5;
+  --line: #d9cfbf;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --spring: cubic-bezier(.3, 1.35, .5, 1);
+  --gutter: max(20px, env(safe-area-inset-left), env(safe-area-inset-right));
+  --noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23948774' opacity='.09' filter='url(%23n)' d='M0 0h180v180H0z'/%3E%3C/svg%3E");
+}
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+.site {
+  font-family: var(--font-serif), Georgia, "Times New Roman", serif;
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--ink);
+  font-variant-numeric: lining-nums;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+}
+.site p { margin: 0; }
+.site a { -webkit-tap-highlight-color: transparent; }
+.script { font-family: var(--font-script), "Snell Roundhand", "Apple Chancery", cursive; font-weight: 400; line-height: 1.1; }
+.quiet { color: var(--ink-soft); }
+.paper { background: var(--paper) var(--noise); }
+.illustration { width: 64px; height: 64px; }
+
+/* ---------- The envelope (first screen) ---------- */
+/* The painting (envelope and both bouquets, one image) over the photos, with the envelope itself
+   centred on screen: it sits at 50% across and 52.7% down the painting. On tall phones the painting is
+   wider than the screen so the envelope stays a good size and the bouquets run off the sides. The
+   screen is fixed over the rest of the site until it's opened. The photos behind it (.backdrop) stay
+   put and keep running behind the pieces and the pages. */
+html:has(.gate) { overflow: hidden; }
+.backdrop { position: fixed; inset: 0; z-index: 0; height: 100lvh; overflow: hidden; isolation: isolate; background: #5f634f; }
+.gate { position: fixed; inset: 0; z-index: 40; height: 100lvh; overflow: hidden; pointer-events: none; }
+.backdrop::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: .16; mix-blend-mode: multiply; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23948774' opacity='.3' filter='url(%23n)' d='M0 0h180v180H0z'/%3E%3C/svg%3E"); }
+.gate-envelope {
+  position: absolute; z-index: 2; left: 50%; top: 50svh;
+  width: min(94vw, 125svh, 1180px); aspect-ratio: 1519 / 1001; padding: 0; border: 0; background: none;
+  transform: translate(-50%, -52.7%); cursor: pointer; pointer-events: auto; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+}
+@media (max-aspect-ratio: 4/5) { .gate-envelope { width: min(150vw, 98svh); } }
+.gate-envelope img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-drag: none; filter: drop-shadow(0 16px 24px #1d1a1233); transition: transform .5s var(--ease); }
+@media (hover: hover) { .gate-envelope:hover img { transform: translateY(-4px); } }
+.gate-envelope:focus-visible { outline: none; }
+.gate-envelope:focus-visible img { filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 2px #fff); }
+/* Opening: the painting comes forward as the screen washes to white. */
+.gate[data-stage="opening"] .gate-envelope img { transform: scale(1.06); transition-duration: .75s; }
+.gate-veil { position: fixed; inset: 0; z-index: 60; background: #fffdf8; pointer-events: none; animation: wash-in .75s ease-in forwards; }
+.gate-veil[data-state="out"] { animation: wash-out .9s ease-out forwards; }
+@keyframes wash-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes wash-out { from { opacity: 1; } to { opacity: 0; } }
+
+/* The photos behind the envelope, slightly out of focus so it stays sharp in front of them. Each slide
+   clips its own photo, so the blurred edges never show between slides. The envelope and the pieces sit
+   in front, but let taps through to the dots and pause button around them. */
+.slideshow { position: absolute; inset: 0; }
+.slides { display: flex; height: 100%; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; }
+.slides::-webkit-scrollbar { display: none; }
+.slide { position: relative; flex: 0 0 100%; overflow: hidden; scroll-snap-align: start; scroll-snap-stop: always; }
+.slide img { object-fit: cover; filter: blur(2px) saturate(.85); transform: scale(1.04); }
+@media (min-width: 900px) { .slide img { filter: blur(3px) saturate(.85); } }
+.slideshow-controls { position: absolute; z-index: 3; right: max(10px, env(safe-area-inset-right)); bottom: calc(100lvh - 100svh + max(14px, env(safe-area-inset-bottom))); display: flex; align-items: center; }
+.slide-dot { display: grid; place-items: center; width: 24px; height: 36px; padding: 0; border: 0; background: none; cursor: pointer; }
+.slide-dot::before { content: ""; width: 7px; height: 7px; border-radius: 4px; background: #ffffffa3; box-shadow: 0 1px 3px #00000047; transition: width .4s var(--ease), background-color .4s; }
+.slide-dot[aria-current="true"]::before { width: 20px; background: #fff; }
+.slide-pause { display: grid; place-items: center; width: 32px; height: 32px; margin-left: 8px; padding: 0; border: 1px solid #ffffff80; border-radius: 50%; background: #00000038; color: #fff; cursor: pointer; }
+.slide-pause svg { width: 10px; height: 10px; fill: currentColor; }
+.slide-dot:focus-visible, .slide-pause:focus-visible { outline: 2px solid #fff; outline-offset: 2px; border-radius: 18px; }
+
+/* ---------- The table: painted pieces that each open a page ---------- */
+/* The pieces laid over the photos, a little askew, none covering another. On phones the Save the Date
+   sits across the top, The Details and the RSVP side by side under it, and the car below; on wide
+   screens the Save the Date and the car stack in the middle between The Details and the RSVP. Each piece is sized off
+   the screen's height as well as its width, so the whole table fits without scrolling. When the
+   envelope opens they drop onto the table one after another as the white clears. */
+.table { position: relative; z-index: 1; display: grid; place-items: center; min-height: 100svh; padding: max(28px, env(safe-area-inset-top)) var(--gutter) max(64px, calc(env(safe-area-inset-bottom) + 52px)); overflow: hidden; pointer-events: none; }
+.table:not([data-arrived]) { visibility: hidden; } /* the envelope has the screen to itself until it's opened */
+.table .piece { pointer-events: auto; } /* the gaps between pieces pass taps through to the slideshow's buttons */
+.pieces { display: grid; grid-template-columns: 1fr 1fr; grid-template-areas: "date date" "details rsvp" "travel travel"; align-items: center; gap: 12px 4%; width: min(100%, 560px, 41svh); }
+.piece { position: relative; display: block; justify-self: center; transform: rotate(var(--tilt)); filter: drop-shadow(0 12px 16px #1d1a1240) drop-shadow(0 2px 3px #1d1a1226); transition: transform .55s var(--spring), filter .55s var(--ease); -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.piece img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-drag: none; }
+.piece-date { grid-area: date; width: 100%; --tilt: -2deg; --spin: -7deg; }
+.piece-details { grid-area: details; width: 92%; --tilt: -3deg; --spin: 7deg; }
+.piece-rsvp { grid-area: rsvp; width: 92%; --tilt: 3deg; --spin: -6deg; }
+.piece-travel { grid-area: travel; width: 60%; --tilt: -2deg; --spin: 8deg; }
+@media (min-aspect-ratio: 5/4) {
+  .pieces { grid-template-columns: .95fr .8fr .8fr 1fr; grid-template-areas: "details date date rsvp" "details travel travel rsvp"; gap: 3svh 4%; width: min(100%, 1440px, 128svh); }
+  .piece-date { align-self: end; }
+  .piece-details { width: 94%; }
+  .piece-rsvp { width: 88%; }
+  .piece-travel { width: 64%; align-self: start; }
+}
+@media (hover: hover) {
+  .piece:hover { transform: translateY(-10px) rotate(calc(var(--tilt) * .4)) scale(1.025); filter: drop-shadow(0 28px 26px #1d1a1240) drop-shadow(0 4px 6px #1d1a121f); }
+}
+.piece:active { transform: rotate(var(--tilt)) scale(.97); transition-duration: .15s; }
+.piece:focus-visible { outline: none; filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 2px #fff) drop-shadow(0 12px 16px #1d1a1240); }
+/* Dropped onto the table: each piece falls in from a little higher, turned a little further, and
+   settles with a small overshoot. */
+.table[data-arrived] .piece { animation: piece-in 1s var(--spring) backwards; animation-delay: calc(.2s + var(--i) * .12s); }
+@keyframes piece-in {
+  from { opacity: 0; transform: translateY(46px) rotate(calc(var(--tilt) + var(--spin))) scale(.9); }
+  40% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .table[data-arrived] .piece { animation: none; } }
+
+/* ---------- The pages ---------- */
+/* A sheet of paper over the table, scrolling on its own. It grows out of the piece that opened it (the
+   script clips it from the piece's outline to the full screen). */
+html:has(.sheet:not([hidden])) { overflow: hidden; }
+.sheet { position: fixed; inset: 0; z-index: 50; overflow-y: auto; overscroll-behavior: contain; background: var(--paper) var(--noise); }
+.sheet[hidden] { display: none; }
+.page { display: none; }
+.sheet[data-shown="date"] [data-page="date"], .sheet[data-shown="details"] [data-page="details"], .sheet[data-shown="travel"] [data-page="travel"], .sheet[data-shown="rsvp"] [data-page="rsvp"] { display: block; }
+.page { padding: 0 var(--gutter) max(96px, calc(env(safe-area-inset-bottom) + 72px)); }
+.page:focus { outline: none; }
+.page-title { margin: 0; padding: clamp(84px, 12vw, 100px) 0 clamp(26px, 5vw, 44px); font-size: clamp(60px, 16vw, 104px); text-align: center; }
+/* The date and place on a printed card, the same stock and fine double rule as the invitation. */
+.details-card-wrap { display: flex; flex-direction: column; align-items: center; gap: 30px; }
+.details-card { position: relative; width: min(100%, 430px); padding: 46px 30px 42px; background: var(--card) var(--noise); text-align: center; box-shadow: 0 1px 2px #3c2d1e14, 0 22px 44px -20px #3c2d1e66; }
+.details-card::before, .details-card::after { content: ""; position: absolute; border: 1px solid var(--rule); pointer-events: none; }
+.details-card::before { inset: 10px; border-width: 1.5px; }
+.details-card::after { inset: 15px; }
+.card-quiet { font-style: italic; color: var(--ink-soft); }
+.card-display { font-size: 34px; font-weight: 360; line-height: 1.15; letter-spacing: -.01em; }
+.card-address { font-size: 17px; color: var(--ink-soft); }
+.card-rule { display: block; width: 44px; height: 1px; margin: 22px auto; background: #b9ab93; }
+.page-section { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; width: min(100%, 680px); margin: 0 auto; padding-top: clamp(40px, 8vw, 64px); }
+.page-section + .page-section { margin-top: clamp(40px, 8vw, 64px); border-top: 1px solid var(--line); }
+.page-section > h4 { margin: 14px 0 -6px; font-size: 21px; font-weight: 500; line-height: 1.3; }
+.section-title { margin: 0 0 4px; font-size: clamp(36px, 10vw, 50px); font-style: italic; font-weight: 320; line-height: 1.05; letter-spacing: -.015em; }
+
+/* The close button: a lace-edged sage badge with a stitched ring, pinned to the top corner. It pops in
+   once the page has opened, turns a quarter on hover like a little flower, and squashes when pressed. */
+.sheet-bar { position: sticky; top: 0; z-index: 3; display: flex; justify-content: flex-end; height: 0; padding: 0 max(12px, env(safe-area-inset-right)) 0 0; pointer-events: none; }
+.sheet-close { width: 62px; height: 62px; margin-top: max(10px, env(safe-area-inset-top)); padding: 0; border: 0; background: none; cursor: pointer; pointer-events: auto; -webkit-tap-highlight-color: transparent; filter: drop-shadow(0 6px 8px #3c2d1e33); transition: transform .5s var(--spring); animation: close-in .7s var(--spring) .35s backwards; }
+.sheet-close svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.sheet-close-lace { fill: #b8c7a4; stroke: #8e9f79; stroke-width: 1; }
+.sheet-close-stitch { fill: none; stroke: #fbf8f1; stroke-width: 1.6; stroke-dasharray: .1 4.2; stroke-linecap: round; }
+.sheet-close-cross { fill: none; stroke: var(--olive-deep); stroke-width: 3.2; stroke-linecap: round; }
+@media (hover: hover) { .sheet-close:hover { transform: rotate(90deg) scale(1.08); } }
+.sheet-close:active { transform: scale(.88); transition-duration: .12s; }
+.sheet-close:focus-visible { outline: 2px solid var(--olive); outline-offset: 2px; border-radius: 50%; }
+.sheet[data-leaving] .sheet-close { transform: rotate(-90deg) scale(.5); opacity: 0; transition: transform .3s ease-in, opacity .3s ease-in; }
+@keyframes close-in { from { opacity: 0; transform: rotate(-120deg) scale(.3); } }
+@media (prefers-reduced-motion: reduce) { .sheet-close { animation: none; } }
+
+.block-title { margin: 0 0 4px; font-size: clamp(44px, 12vw, 62px); font-style: italic; font-weight: 320; line-height: 1; letter-spacing: -.015em; }
+.text-link { padding: 6px 0; font-size: 18px; color: var(--ink); text-decoration-line: underline; text-decoration-color: var(--olive); text-decoration-thickness: 1px; text-underline-offset: 6px; transition: color .2s; }
+.text-link:hover { color: var(--olive); }
+.text-link:focus-visible { outline: 2px solid var(--olive); outline-offset: 4px; border-radius: 2px; }
+
+/* Drive times set like a printed program: town, dotted leader, time. */
+.drives { display: grid; gap: 18px; width: 100%; margin: 6px 0 2px; padding: 0; list-style: none; }
+.drive-row { display: flex; align-items: baseline; gap: 12px; font-size: 21px; line-height: 1.3; }
+.leader { flex: 1; min-width: 24px; height: 3px; background: radial-gradient(circle, #a99d87 1px, transparent 1.4px) 0 50% / 7px 3px repeat-x; transform: translateY(-.28em); }
+.drive-distance { display: block; font-size: 16px; font-style: italic; }
+
+.day { display: grid; gap: 22px; width: 100%; margin: 8px 0 0; padding: 0; list-style: none; }
+.day li { display: grid; grid-template-columns: 58px 1fr; column-gap: 18px; align-items: center; }
+.day .illustration { grid-row: span 2; width: 58px; height: 58px; color: #5b5347; }
+.day-time { align-self: end; font-size: 15px; font-weight: 550; letter-spacing: .03em; color: var(--ink-soft); font-variant-numeric: lining-nums tabular-nums; }
+.day-label { align-self: start; font-size: 21px; line-height: 1.3; }
+@media (min-width: 720px) { .day { grid-template-columns: 1fr 1fr; grid-template-rows: repeat(4, auto); grid-auto-flow: column; column-gap: 40px; } }
+
+.hotels { display: grid; gap: 30px; width: 100%; margin: 6px 0 0; padding: 0; list-style: none; }
+@media (min-width: 640px) { .hotels { grid-template-columns: 1fr 1fr; } }
+.hotels h4 { margin: 0 0 4px; font-size: 21px; font-weight: 500; line-height: 1.3; }
+.hotels p { margin-bottom: 4px; font-size: 18px; }
+
+.swatches { display: grid; grid-template-columns: repeat(5, minmax(0, 72px)); gap: 8px; width: 100%; margin: 6px 0 2px; padding: 0; list-style: none; }
+.swatches li { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-style: italic; line-height: 1.25; color: var(--ink-soft); text-align: center; }
+.swatch { width: min(44px, 100%); aspect-ratio: 44 / 62; border-radius: 22px 22px 3px 3px; box-shadow: inset 0 0 0 1px #0000000f, 0 4px 10px #3c322826; }
+
+/* ---------- RSVP form ---------- */
+.rsvp-form { display: flex; flex-direction: column; gap: 22px; width: 100%; margin-top: 8px; }
+.field { display: flex; flex-direction: column; gap: 8px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.field-label { padding: 0; font-size: 16px; font-weight: 550; }
+.rsvp-form input:not([type="radio"]), .rsvp-form select, .rsvp-form textarea {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid var(--field);
+  border-radius: 3px;
+  background: #fffdf8;
+  color: var(--ink);
+  font: 18px/1.4 var(--font-serif), Georgia, serif; /* at least 16px, so iOS doesn't zoom in */
+  appearance: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.rsvp-form select { background-image: linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%), linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%); background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%; background-size: 5px 5px; background-repeat: no-repeat; }
+.rsvp-form textarea { resize: vertical; }
+.rsvp-form input:focus, .rsvp-form select:focus, .rsvp-form textarea:focus { outline: none; border-color: var(--olive); box-shadow: 0 0 0 3px #4e553829; }
+.rsvp-form [aria-invalid="true"] { border-color: #a4535a; }
+.choice-row { display: grid; gap: 10px; }
+@media (min-width: 480px) { .choice-row { grid-template-columns: 1fr 1fr; } }
+.choice { position: relative; display: flex; cursor: pointer; }
+.choice input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.choice span { flex: 1; padding: 14px 12px; border: 1px solid var(--field); border-radius: 3px; background: #fffdf8; font-size: 19px; font-style: italic; text-align: center; transition: background-color .2s, color .2s, border-color .2s; }
+.choice input:checked + span { border-color: var(--olive); background: var(--olive); color: #f6f1e6; }
+.choice input:focus-visible + span { outline: 2px solid var(--olive); outline-offset: 2px; }
+.field-error, .form-message { color: #8a2f36; font-size: 16px; font-style: italic; }
+.form-message a { color: inherit; }
+.honeypot { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.rsvp-thanks { display: flex; flex-direction: column; gap: 10px; width: 100%; padding: 16px 0 0; }
+.rsvp-thanks .block-title { font-size: 36px; }
+
+.button { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; padding: 14px 30px; border: 0; border-radius: 3px; background: var(--olive); color: #f6f1e6; font: 500 18px/1.25 var(--font-serif), Georgia, serif; text-decoration: none; cursor: pointer; transition: background-color .2s, transform .2s; }
+.button:hover { background: var(--olive-deep); }
+.button:active { transform: scale(.985); }
+.button:focus-visible { outline: 2px solid var(--olive); outline-offset: 3px; }
+.button:disabled { opacity: .6; cursor: progress; }
+.rsvp-form .button { margin-top: 6px; }
+.rsvp-jump-cta { font-size: 15px; font-style: italic; opacity: .85; }
+
+@media (min-width: 900px) { .site { font-size: 20px; } }

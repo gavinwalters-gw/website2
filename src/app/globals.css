@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sage: #a4ad99;
+  --color-rose: #bd9292;
+}
+
+:root { color-scheme: light; }
+html, body { margin: 0; width: 100%; min-height: 100%; background: #f4f0e7; }
+body { font-family: var(--font-serif), Georgia, "Times New Roman", serif; }
+.garden-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, #f4ecdc30, #28302338), linear-gradient(#30382516, #ebe1cc30);
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
