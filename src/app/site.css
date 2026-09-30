@@ -65,13 +65,15 @@ html:has(.gate) { overflow: hidden; }
 @keyframes wash-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes wash-out { from { opacity: 1; } to { opacity: 0; } }
 
-/* The photos behind the envelope, slightly out of focus so it stays sharp in front of them. Each slide
-   clips its own photo, so the blurred edges never show between slides. The envelope and the pieces sit
+/* The photos behind everything, slightly out of focus so the paintings stay sharp in front of them.
+   Each slide clips its own photo, so the blurred edges never show. The envelope and the pieces sit
    in front, but let taps through to the dots and pause button around them. */
 .slideshow { position: absolute; inset: 0; }
-.slides { display: flex; height: 100%; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; }
-.slides::-webkit-scrollbar { display: none; }
-.slide { position: relative; flex: 0 0 100%; overflow: hidden; scroll-snap-align: start; scroll-snap-stop: always; }
+/* Stacked: the current photo fades in on top of the one it replaces, which stays opaque underneath. */
+.slides { position: absolute; inset: 0; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.slide { position: absolute; inset: 0; z-index: 0; overflow: hidden; opacity: 0; visibility: hidden; transition: opacity 1.8s ease-in-out, visibility 0s 1.8s; }
+.slide[data-previous] { z-index: 1; opacity: 1; visibility: visible; transition: none; }
+.slide[data-current] { z-index: 2; opacity: 1; visibility: visible; transition: opacity 1.8s ease-in-out, visibility 0s; }
 .slide img { object-fit: cover; filter: blur(2px) saturate(.85); transform: scale(1.04); }
 @media (min-width: 900px) { .slide img { filter: blur(3px) saturate(.85); } }
 .slideshow-controls { position: absolute; z-index: 3; right: max(10px, env(safe-area-inset-right)); bottom: calc(100lvh - 100svh + max(14px, env(safe-area-inset-bottom))); display: flex; align-items: center; }
