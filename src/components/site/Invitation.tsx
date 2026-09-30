@@ -13,12 +13,26 @@ import Slideshow from "./Slideshow";
 export type PageId = "date" | "details" | "travel" | "rsvp";
 
 // The pieces on the table, in reading order. Where each one sits is up to the stylesheet.
-const pieces: { id: PageId; art: StaticImageData; label: string }[] = [
-  { id: "date", art: saveTheDate, label: "Save the date: June 13, 2027 in Grand Blanc" },
-  { id: "details", art: details, label: "The details" },
-  { id: "travel", art: travel, label: "Travel and accommodations" },
-  { id: "rsvp", art: rsvp, label: "Kindly RSVP" },
+// `sizes` is how wide each is drawn (see .pieces in site.css), wide screens first, so phones fetch
+// only the pixels they show.
+const pieces: { id: PageId; art: StaticImageData; label: string; sizes: string }[] = [
+  { id: "date", art: saveTheDate, label: "Save the date: June 13, 2027 in Grand Blanc", sizes: "(min-aspect-ratio: 5/4) min(45vw, 58vh), min(92vw, 41vh)" },
+  { id: "details", art: details, label: "The details", sizes: "(min-aspect-ratio: 5/4) min(25vw, 32vh), min(42vw, 19vh)" },
+  { id: "travel", art: travel, label: "Travel and accommodations", sizes: "(min-aspect-ratio: 5/4) min(29vw, 37vh), min(55vw, 25vh)" },
+  { id: "rsvp", art: rsvp, label: "Kindly RSVP", sizes: "(min-aspect-ratio: 5/4) min(24vw, 31vh), min(42vw, 19vh)" },
 ];
+
+// Once the envelope is on screen, fetch what the next screens need while the guest is looking at it:
+// the fonts (only the Latin files the pages use) and, via `warm`, the paintings on the table.
+const whenIdle = (then: () => void) => {
+  if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(then, { timeout: 1500 });
+  else setTimeout(then, 300); // where it is missing (Safari)
+};
+const coversLatin = (range: string) => range.split(",").some(part => {
+  const [from, to = from] = part.trim().replace(/^U\+/i, "").split("-");
+  return parseInt(from.replace(/\?/g, "0"), 16) <= 0x61 && 0x61 <= parseInt(to.replace(/\?/g, "f"), 16);
+});
+const fetchFonts = () => document.fonts.forEach(face => { if (coversLatin(face.unicodeRange)) face.load().catch(() => {}); });
 
 // Which page is open lives in the address (/#rsvp), so the back button closes it and a link can open it.
 const isPage = (id: string): id is PageId => pieces.some(piece => piece.id === id);
@@ -69,6 +83,7 @@ export default function Invitation({ children }: { children: ReactNode }) {
   const [veil, setVeil] = useState<"in" | "out" | null>(null);
   // The page on screen, which stays a moment after the address has moved on so it can shrink away.
   const [shown, setShown] = useState<PageId | null>(null);
+  const [warm, setWarm] = useState(false);
   const timer = useRef(0);
   const origin = useRef<PageId | null>(null);
   const sheet = useRef<HTMLDivElement>(null);
@@ -88,6 +103,11 @@ export default function Invitation({ children }: { children: ReactNode }) {
     returnTo.current?.focus({ preventScroll: true });
     returnTo.current = null;
   }, [shown]);
+
+  const envelopeShown = () => whenIdle(() => {
+    fetchFonts();
+    setWarm(true);
+  });
 
   const openEnvelope = () => {
     if (stage !== "envelope") return;
@@ -188,7 +208,7 @@ export default function Invitation({ children }: { children: ReactNode }) {
       {stage !== "table" && (
         <section className="gate" data-stage={stage} aria-label="Your invitation">
           <button type="button" className="gate-envelope" onClick={openEnvelope} aria-label="Open the invitation">
-            <Image src={invitation} alt="" sizes="(max-aspect-ratio: 4/5) 150vw, min(94vw, 1180px)" preload />
+            <Image src={invitation} alt="" sizes="(max-aspect-ratio: 4/5) 150vw, min(94vw, 1180px)" preload onLoad={envelopeShown} />
           </button>
         </section>
       )}
@@ -201,11 +221,11 @@ export default function Invitation({ children }: { children: ReactNode }) {
               ref={link => { if (link) pieceRefs.current.set(piece.id, link); }}
               href={`#${piece.id}`}
               className={`piece piece-${piece.id}`}
-              style={{ "--i": i } as CSSProperties}
+              style={{ "--i": i, aspectRatio: `${piece.art.width} / ${piece.art.height}` } as CSSProperties}
               aria-label={piece.label}
               onClick={event => openPage(event, piece.id)}
             >
-              <Image src={piece.art} alt="" sizes="(min-width: 900px) 40vw, 90vw" draggable={false} />
+              {(warm || stage === "table") && <Image src={piece.art} alt="" sizes={piece.sizes} draggable={false} />}
             </a>
           ))}
         </nav>

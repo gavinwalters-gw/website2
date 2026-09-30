@@ -15,7 +15,9 @@ const prefersReducedMotion = () => window.matchMedia(reducedMotionQuery).matches
 
 // Full-bleed photos, stacked, that fade from one to the next every few seconds behind everything else.
 // The incoming photo fades in on top of the one before, which stays put underneath until it's covered,
-// so the screen never dips between them. A swipe steps through them by hand. It rests while off screen
+// so the screen never dips between them. Only the photos shown so far are in the page, plus the next one
+// once the first has loaded, so a phone isn't fetching the whole set up front; and since they're blurred,
+// they're fetched at a little over half the screen's resolution. A swipe steps through them by hand. It rests while off screen
 // or in a background tab, never starts on its own for anyone who prefers reduced motion, and the pause
 // button stops it for good.
 export default function Slideshow({ slides, interval = 6000 }: { slides: Slide[]; interval?: number }) {
@@ -25,11 +27,16 @@ export default function Slideshow({ slides, interval = 6000 }: { slides: Slide[]
   const loop = count > 1;
   const [{ current, previous }, setView] = useState({ current: 0, previous: -1 });
   const [resting, setResting] = useState(true);
+  const [seen, setSeen] = useState<number[]>([0]);
+  const [firstLoaded, setFirstLoaded] = useState(false);
   const [paused, setPaused] = useState<boolean | null>(null);
   const reducedMotion = useSyncExternalStore(watchReducedMotion, prefersReducedMotion, () => false);
   const stopped = paused ?? reducedMotion;
 
   const show = (next: number) => setView(view => (next === view.current ? view : { current: next, previous: view.current }));
+  if (!seen.includes(current)) setSeen([...seen, current]);
+  const upNext = (current + 1) % count;
+  const inPage = (i: number) => seen.includes(i) || (firstLoaded && i === upNext);
 
   useEffect(() => {
     const section = root.current;
@@ -78,17 +85,17 @@ export default function Slideshow({ slides, interval = 6000 }: { slides: Slide[]
             data-current={i === current || undefined}
             data-previous={i === previous || undefined}
           >
-            <Image
+            {inPage(i) && <Image
               src={slide.src}
               alt={slide.alt}
               fill
-              sizes="100vw"
+              sizes="(max-width: 899px) 60vw, 80vw"
               draggable={false}
               placeholder="blur"
-              loading={i === current || i === (current + 1) % count ? "eager" : "lazy"}
-              fetchPriority={i === 0 ? "high" : undefined}
+              fetchPriority={i === 0 ? "high" : "low"}
+              onLoad={i === 0 ? () => setFirstLoaded(true) : undefined}
               style={{ objectPosition: slide.position }}
-            />
+            />}
           </div>
         ))}
       </div>
