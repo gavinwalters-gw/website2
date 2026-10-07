@@ -174,6 +174,7 @@ export default function RsvpForm() {
 // The server sends back only a few matches at a time, and anyone already picked is left out.
 function GuestSearch({ label, hint, picked, onPick, invalid }: { label: string; hint: string; picked: string[]; onPick: (match: Match) => void; invalid: boolean }) {
   const id = useId();
+  const box = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
   const [found, setFound] = useState<{ query: string; matches: Match[] }>({ query: "", matches: [] });
@@ -200,7 +201,14 @@ function GuestSearch({ label, hint, picked, onPick, invalid }: { label: string; 
     onPick(match);
     setQuery("");
     setOpen(false);
-    input.current?.focus();
+    // On a touch screen the keyboard goes away, so the card just added can be seen.
+    if (matchMedia("(pointer: coarse)").matches) input.current?.blur();
+    else input.current?.focus();
+  };
+
+  // On a phone, once the keyboard is up, bring the box to the top of the screen so the suggestions fit above it.
+  const lift = () => {
+    if (matchMedia("(max-width: 699px)").matches) setTimeout(() => box.current?.scrollIntoView({ block: "start", behavior: "smooth" }), 300);
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -219,7 +227,7 @@ function GuestSearch({ label, hint, picked, onPick, invalid }: { label: string; 
   };
 
   return (
-    <div className="guest-search">
+    <div className="guest-search" ref={box}>
       <label className="field-label" htmlFor={`${id}-input`}>{label}</label>
       <span className="field-hint" id={`${id}-hint`}>{hint}</span>
       <input
@@ -239,7 +247,7 @@ function GuestSearch({ label, hint, picked, onPick, invalid }: { label: string; 
         enterKeyHint="search"
         value={query}
         onChange={event => { setQuery(event.target.value); setOpen(true); }}
-        onFocus={() => setOpen(true)}
+        onFocus={() => { setOpen(true); lift(); }}
         onBlur={() => setOpen(false)}
         onKeyDown={onKeyDown}
       />
