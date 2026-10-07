@@ -180,6 +180,7 @@ function GuestSearch({ label, hint, picked, onPick, invalid }: { label: string; 
   const [found, setFound] = useState<{ query: string; matches: Match[] }>({ query: "", matches: [] });
   const [active, setActive] = useState(0);
   const [open, setOpen] = useState(false);
+  const [focused, setFocused] = useState(false);
   const typed = query.trim();
   const matches = typed.length < 2 ? [] : found.matches.filter(match => !picked.includes(match.id));
   const settled = found.query === typed;
@@ -197,6 +198,27 @@ function GuestSearch({ label, hint, picked, onPick, invalid }: { label: string; 
     return () => { clearTimeout(timer); controller.abort(); };
   }, [typed]);
 
+  // On a phone the keyboard covers the bottom of the screen, and iOS slides the whole page up to keep the box
+  // in sight. While typing, keep the box at the top of what can actually be seen, so the suggestions fit
+  // between it and the keyboard.
+  useEffect(() => {
+    const view = window.visualViewport;
+    const sheet = box.current?.closest(".sheet");
+    if (!focused || !view || !sheet || !matchMedia("(max-width: 699px)").matches) return;
+    const place = () => {
+      const gap = box.current!.getBoundingClientRect().top - view.offsetTop - 12;
+      if (Math.abs(gap) > 4) sheet.scrollTop += gap;
+    };
+    const timers = [setTimeout(place, 100), setTimeout(place, 450)];
+    view.addEventListener("resize", place);
+    view.addEventListener("scroll", place);
+    return () => {
+      timers.forEach(clearTimeout);
+      view.removeEventListener("resize", place);
+      view.removeEventListener("scroll", place);
+    };
+  }, [focused]);
+
   const pick = (match: Match) => {
     onPick(match);
     setQuery("");
@@ -206,10 +228,6 @@ function GuestSearch({ label, hint, picked, onPick, invalid }: { label: string; 
     else input.current?.focus();
   };
 
-  // On a phone, once the keyboard is up, bring the box to the top of the screen so the suggestions fit above it.
-  const lift = () => {
-    if (matchMedia("(max-width: 699px)").matches) setTimeout(() => box.current?.scrollIntoView({ block: "start", behavior: "smooth" }), 300);
-  };
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
@@ -247,8 +265,8 @@ function GuestSearch({ label, hint, picked, onPick, invalid }: { label: string; 
         enterKeyHint="search"
         value={query}
         onChange={event => { setQuery(event.target.value); setOpen(true); }}
-        onFocus={() => { setOpen(true); lift(); }}
-        onBlur={() => setOpen(false)}
+        onFocus={() => { setOpen(true); setFocused(true); }}
+        onBlur={() => { setOpen(false); setFocused(false); }}
         onKeyDown={onKeyDown}
       />
       <ul className="guest-options" id={`${id}-list`} role="listbox" aria-label="Guests" hidden={!showing}>
