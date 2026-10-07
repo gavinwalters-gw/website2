@@ -1,10 +1,20 @@
 // Everything guests read lives here. Swap the placeholders (marked TODO) for the real details.
 
+import type { StaticImageData } from "next/image";
 import romeGarden from "./photos/rome-garden.webp";
 import romeSteps from "./photos/rome-steps.webp";
-import ringPhoto from "./photos/ring.jpg";
+import ringPhoto from "./photos/ring.webp";
 import withTheDog from "./photos/with-the-dog.webp";
 import silo from "./photos/silo.webp";
+import comfortInn from "./photos/comfort-inn.webp";
+import kait from "./party/kait.webp";
+import madison from "./party/madison.webp";
+import lorelei from "./party/lorelei.webp";
+import sunny from "./party/sunny.webp";
+import grace from "./party/grace.webp";
+import olivia from "./party/olivia.webp";
+import ashley from "./party/ashley.webp";
+import addilyn from "./party/addilyn.webp";
 
 export const couple = {
   first: "Gavin",
@@ -12,7 +22,7 @@ export const couple = {
   monogram: ["G", "A"] as const,
 };
 
-// Sunday, June 13, 2027, in Michigan (Eastern Daylight Time). TODO: confirm the 4:00 PM ceremony start.
+// Sunday, June 13, 2027, in Michigan (Eastern Daylight Time).
 export const weddingDate = new Date("2027-06-13T16:00:00-04:00");
 export const weddingTimeZone = "America/Detroit";
 
@@ -31,58 +41,72 @@ export const driveTimes = [
   { from: "South Lyon", time: "1 hour", distance: "45 miles" },
 ];
 
-// The slideshow at the top of the details, in order. Add more photos here; `position` is the part of
-// each picture to keep in view when it's cropped to fit the screen.
-export const slideshow = [
-  { src: romeGarden, alt: "Gavin and Ally smiling at each other in the sun under the trees in Rome", position: "50% 38%" },
-  { src: romeSteps, alt: "Ally, wearing the engagement ring, with arms around Gavin at the top of the Spanish Steps in Rome", position: "48% 50%" },
-  { src: ringPhoto, alt: "Ally’s hand, wearing the engagement ring, resting on Gavin’s shoulder", position: "50% 52%" },
-  { src: withTheDog, alt: "Gavin and Ally sitting on a stone wall with their golden retriever", position: "50% 12%" },
-  { src: silo, alt: "Gavin and Ally leaning together against an old concrete silo", position: "55% 30%" },
+// The two of them: drifting as polaroids behind everything, and laid out on the Photos page.
+export const photos: { src: StaticImageData; alt: string }[] = [
+  { src: romeGarden, alt: "Gavin and Ally smiling at each other in the sun under the trees in Rome" },
+  { src: romeSteps, alt: "Ally, wearing the engagement ring, with arms around Gavin at the top of the Spanish Steps in Rome" },
+  { src: ringPhoto, alt: "Ally’s hand, wearing the engagement ring, resting on Gavin’s shoulder" },
+  { src: withTheDog, alt: "Gavin and Ally sitting on a stone wall with their golden retriever" },
+  { src: silo, alt: "Gavin and Ally leaning together against an old concrete silo" },
 ];
 
-export const rsvpDeadline = "May 1, 2027"; // TODO
-export const contactEmail = "hello@example.com"; // TODO
-export const registryUrl = "#"; // TODO
+export const rsvpDeadline = "May 16, 2027";
+export const contactEmail = "g.a.walterswedding@gmail.com";
+export const registryUrl = ""; // TODO: the registry link. The Registry page says it's coming until this is set.
 
 export type TimelineIcon = "church" | "rings" | "coupes" | "camera" | "dinner" | "cake" | "disco" | "car";
 
-// TODO: the real order of the day.
 export const timeline: { time: string; label: string; icon: TimelineIcon }[] = [
   { time: "3:30 PM", label: "Guests arrive", icon: "church" },
   { time: "4:00 PM", label: "The ceremony", icon: "rings" },
-  { time: "4:45 PM", label: "Cocktail hour", icon: "coupes" },
-  { time: "5:15 PM", label: "Photos", icon: "camera" },
-  { time: "6:00 PM", label: "Dinner", icon: "dinner" },
-  { time: "7:30 PM", label: "Cake cutting", icon: "cake" },
-  { time: "8:00 PM", label: "Dancing", icon: "disco" },
-  { time: "11:00 PM", label: "Farewell", icon: "car" },
-];
-
-// TODO: hotel blocks.
-export const hotels = [
-  { name: "Hotel Name", address: ["Street Address", "City, State"], note: "A short walk from the venue", url: "#" },
-  { name: "Second Hotel", address: ["Street Address", "City, State"], note: "Ten minutes by car", url: "#" },
+  { time: "To follow", label: "Cocktail hour and reception", icon: "coupes" },
+  { time: "10:00 PM", label: "Send off", icon: "car" },
 ];
 
 export const dressCode = {
-  title: "Garden formal",
-  text: "We’d love for everyone to wear cocktail or semi-formal attire — something a bit dressy, but comfortable enough to enjoy the festivities. To keep with the garden, we kindly ask guests to avoid wearing white.",
-  palette: [
-    { name: "Ivory", color: "#ece5d6" },
-    { name: "Sage", color: "#b3bba4" },
-    { name: "Olive", color: "#7d8a5c" },
-    { name: "Dusty rose", color: "#bd9292" },
-    { name: "Wine", color: "#6e2430" },
+  title: "Formal",
+  text: "We would love for everyone to dress up for the occasion. We kindly ask guests to avoid wearing white. If you have any questions, please let us know.",
+  guide: "https://www.theknot.com/content/formal-wedding-attire",
+};
+
+export const hotel = {
+  name: "Comfort Inn & Suites",
+  photo: comfortInn,
+  address: ["1359 Grand Pointe Ct", "Grand Blanc, MI 48439"],
+  fromVenue: "11 minutes from the venue",
+  amenities: ["Free breakfast", "Pool & hot tub", "Fire pit", "Free airport transportation"],
+  rooms: [
+    { room: "King", night: "Saturday", price: "$154" },
+    { room: "King", night: "Sunday", price: "$124" },
+    { room: "2 Queens", night: "Saturday", price: "$159" },
+    { room: "2 Queens", night: "Sunday", price: "$129" },
   ],
+  bookUrl: "https://www.choicehotels.com/reservations/groups/FU99V6",
+  phone: "810-694-9900",
+  bookBy: "May 1, 2027",
 };
 
-export const children = {
-  title: "Adults only",
-  text: "While we absolutely love your little ones, we’ve chosen to make our celebration an adults-only evening. We hope you can enjoy a night off on us!",
-};
+export const weddingParty: { name: string; role: string; photo?: StaticImageData }[] = [
+  { name: "Kait", role: "Matron of Honor", photo: kait },
+  { name: "Madison", role: "Maid of Honor", photo: madison },
+  { name: "Lorelei", role: "Bridesmaid", photo: lorelei },
+  { name: "Sunny", role: "Bridesmaid", photo: sunny },
+  { name: "Grace", role: "Bridesmaid", photo: grace },
+  { name: "Olivia", role: "Bridesmaid", photo: olivia },
+  { name: "Ashley", role: "Bridesmaid", photo: ashley },
+  { name: "Addilyn", role: "Junior Bridesmaid", photo: addilyn },
+  { name: "Ivy", role: "Flower Girl" },
+  { name: "Timothy", role: "Ring Bearer" },
+];
 
-export const gifts = "Your presence is truly the greatest gift. If you would like to give something extra, we have created a registry with a few ideas to help us begin our new life together.";
+export const thingsToDo = [
+  { name: "Grand Blanc Commons Nature Preserve", url: "https://www.cityofgrandblancmi.gov/city_services/parks_and_recreation/city_parks/grand_blanc_commons.php" },
+  { name: "Galaxy Lanes", url: "https://www.bowlgalaxylanes.com/" },
+  { name: "US-23 Drive-In Theater", url: "https://www.us23driveintheater.com/" },
+  { name: "Fenton Winery & Brewery", url: "https://www.fentonbrewery.com/" },
+  { name: "The Captain’s Club Golf & Event Center", url: "https://thecaptainsclub.golf/" },
+  { name: "Atlas Valley Golf Club", url: "https://atlasvalleygolf.com/" },
+];
 
 // Dates always read in the venue's time zone, wherever the guest is.
 export const formatDate = (style: "long" | "short" | "weekday") => {

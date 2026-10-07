@@ -2,25 +2,51 @@
 
 import Image, { type StaticImageData } from "next/image";
 import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type MouseEvent, type ReactNode } from "react";
-import { slideshow } from "@/content/wedding";
 import invitation from "@/content/gate/invitation.webp";
 import saveTheDate from "@/content/collage/save-the-date.webp";
 import details from "@/content/collage/details.webp";
 import travel from "@/content/collage/travel.webp";
 import rsvp from "@/content/collage/rsvp.webp";
-import Slideshow from "./Slideshow";
+import photos from "@/content/collage/photos.webp";
+import party from "@/content/collage/wedding-party.webp";
+import faq from "@/content/collage/faq.webp";
+import thingsToDo from "@/content/collage/things-to-do.webp";
+import registry from "@/content/collage/registry.webp";
+import Polaroids from "./Polaroids";
 
-export type PageId = "date" | "details" | "travel" | "rsvp";
+export type PageId = "date" | "details" | "travel" | "rsvp" | "photos" | "party" | "faq" | "todo" | "registry";
 
-// The pieces on the table, in reading order. Where each one sits is up to the stylesheet.
-// `sizes` is how wide each is drawn (see .pieces in site.css), wide screens first, so phones fetch
-// only the pixels they show.
-const pieces: { id: PageId; art: StaticImageData; label: string; sizes: string }[] = [
-  { id: "date", art: saveTheDate, label: "Save the date: June 13, 2027 in Grand Blanc", sizes: "(min-aspect-ratio: 5/4) min(45vw, 58vh), min(92vw, 41vh)" },
-  { id: "details", art: details, label: "The details", sizes: "(min-aspect-ratio: 5/4) min(25vw, 32vh), min(42vw, 19vh)" },
-  { id: "travel", art: travel, label: "Travel and accommodations", sizes: "(min-aspect-ratio: 5/4) min(29vw, 37vh), min(55vw, 25vh)" },
-  { id: "rsvp", art: rsvp, label: "Kindly RSVP", sizes: "(min-aspect-ratio: 5/4) min(24vw, 31vh), min(42vw, 19vh)" },
+// Where a piece lies on the table: left, top and width in the table's units, and how far it's turned.
+// The table is 100 units wide and 240 tall on phones (a little over a screen, so it scrolls), and
+// 160 by 84 on wide screens (one screen).
+type Spot = [x: number, y: number, width: number, tilt: number];
+const PHONE = { width: 100, height: 240 };
+const WIDE = { width: 160, height: 84 };
+
+// The pieces on the table, in reading order (the order they drop in).
+const pieces: { id: PageId; art: StaticImageData; label: string; phone: Spot; wide: Spot }[] = [
+  { id: "date", art: saveTheDate, label: "Save the date: June 13, 2027 in Grand Blanc", phone: [4, 2, 62, -2], wide: [56, 3, 46, -2] },
+  { id: "details", art: details, label: "The details", phone: [6, 58, 34, -3], wide: [32, 10, 19, -3] },
+  { id: "travel", art: travel, label: "Travel and accommodations", phone: [42, 108, 52, -2], wide: [65, 46, 30, -2] },
+  { id: "rsvp", art: rsvp, label: "Kindly RSVP", phone: [6, 110, 30, 3], wide: [106, 9, 18, 3] },
+  { id: "photos", art: photos, label: "Photos", phone: [46, 60, 48, 3], wide: [3, 8, 26, -4] },
+  { id: "party", art: party, label: "The wedding party", phone: [68, 8, 28, 4], wide: [131, 8, 21, 4] },
+  { id: "faq", art: faq, label: "Questions and answers", phone: [8, 164, 36, -4], wide: [6, 50, 21, 3] },
+  { id: "todo", art: thingsToDo, label: "Things to do nearby", phone: [52, 160, 42, 3], wide: [29, 54, 25, 2] },
+  { id: "registry", art: registry, label: "Registry", phone: [22, 202, 56, -2], wide: [122, 50, 32, -3] },
 ];
+
+// How wide each piece is drawn (the table's width is set in site.css), wide screens first, so phones
+// fetch only the pixels they show.
+const sizes = ({ phone, wide }: (typeof pieces)[number]) => {
+  const share = wide[2] / WIDE.width;
+  return `(min-aspect-ratio: 5/4) min(${(share * 96).toFixed(1)}vw, ${(share * 1500).toFixed(0)}px, ${((wide[2] / WIDE.height) * 86).toFixed(1)}vh), ${(phone[2] * 0.92).toFixed(1)}vw`;
+};
+const place = ({ phone, wide }: (typeof pieces)[number], i: number) => ({
+  "--i": i,
+  "--px": phone[0] / PHONE.width, "--py": phone[1] / PHONE.height, "--pw": phone[2] / PHONE.width, "--pt": `${phone[3]}deg`,
+  "--wx": wide[0] / WIDE.width, "--wy": wide[1] / WIDE.height, "--ww": wide[2] / WIDE.width, "--wt": `${wide[3]}deg`,
+}) as CSSProperties;
 
 // Once the envelope is on screen, fetch what the next screens need while the guest is looking at it:
 // the fonts (only the Latin files the pages use) and, via `warm`, the paintings on the table.
@@ -74,9 +100,54 @@ const WASH_IN = 750; // how long the screen takes to wash to white after the env
 // The scalloped edge of the close badge, like the lace on the Save the Date heart.
 const SCALLOP = "M32 8A6.71 6.71 0 0 1 44 11.22A6.71 6.71 0 0 1 52.78 20A6.71 6.71 0 0 1 56 32A6.71 6.71 0 0 1 52.78 44A6.71 6.71 0 0 1 44 52.78A6.71 6.71 0 0 1 32 56A6.71 6.71 0 0 1 20 52.78A6.71 6.71 0 0 1 11.22 44A6.71 6.71 0 0 1 8 32A6.71 6.71 0 0 1 11.22 20A6.71 6.71 0 0 1 20 11.22A6.71 6.71 0 0 1 32 8Z";
 
-// The whole site, over a slideshow of photos that runs the whole time. First the painted envelope;
+// The RSVP piece opens as an envelope: it comes up from the piece to the middle of the screen, the flap
+// opens, the card inside slides up, and the page grows out of the card. Returns a cleanup for the effect.
+function growFromEnvelope(fx: HTMLDivElement, box: HTMLElement, body: HTMLElement | null, piece: HTMLElement) {
+  const width = Math.min(window.innerWidth * 0.78, 420);
+  const height = width * 0.66;
+  const left = (window.innerWidth - width) / 2;
+  const top = window.innerHeight * 0.58 - height / 2;
+  const rise = height * 0.6;
+  Object.assign(fx.style, { left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px` });
+  fx.setAttribute("data-playing", "");
+
+  const from = piece.getBoundingClientRect();
+  const scale = from.width / width;
+  const dx = from.left + from.width / 2 - (left + width / 2);
+  const dy = from.top + from.height / 2 - (top + height / 2);
+  const part = (name: string) => fx.querySelector<HTMLElement>(`.rsvp-envelope-${name}`)!;
+
+  fx.animate(
+    [{ transform: `translate(${dx}px, ${dy}px) scale(${scale}) rotate(3deg)`, opacity: 0 }, { opacity: 1, offset: 0.3 }, { transform: "none", opacity: 1 }],
+    { duration: 560, easing: GROW },
+  );
+  part("flap").animate([{ transform: "rotateX(0deg)", zIndex: 4 }, { transform: "rotateX(180deg)", zIndex: 0 }], { duration: 420, delay: 520, easing: "ease-in-out", fill: "both" });
+  part("card").animate([{ transform: "none" }, { transform: `translateY(${-rise}px)` }], { duration: 520, delay: 900, easing: EASE, fill: "both" });
+
+  // The card's outline once it's out, which the page grows from.
+  const card = { left: left + width * 0.05, top: top + height * 0.05 - rise, right: left + width * 0.95, bottom: top + height * 0.95 - rise };
+  const outline = `inset(${card.top}px ${window.innerWidth - card.right}px ${window.innerHeight - card.bottom}px ${card.left}px round 4px)`;
+  const grow = box.animate(
+    [{ clipPath: outline, opacity: 0 }, { opacity: 1, offset: 0.12 }, { clipPath: "inset(0 round 0)", opacity: 1 }],
+    { duration: 700, delay: 1380, easing: GROW, fill: "backwards" },
+  );
+  body?.animate(
+    [{ opacity: 0, transform: "translateY(22px)" }, { opacity: 1, transform: "none" }],
+    { duration: 520, delay: 1800, easing: EASE, fill: "backwards" },
+  );
+  grow.onfinish = () => fx.removeAttribute("data-playing");
+  return () => {
+    grow.onfinish = null;
+    fx.getAnimations({ subtree: true }).forEach(animation => animation.cancel());
+    fx.removeAttribute("data-playing");
+  };
+}
+
+// The whole site, over polaroids of the two of them drifting behind everything. First the painted envelope;
 // tapping it washes the screen to white, which clears onto the painted pieces that settle into place one after another. Each piece opens
 // its page: a sheet of paper that grows out of the piece, with a lace-edged button that shrinks it back.
+// The RSVP opens differently: an envelope comes up from the piece, opens, and the reply card slides out
+// and grows into the page.
 export default function Invitation({ children }: { children: ReactNode }) {
   const page = useSyncExternalStore(watchPage, currentPage, () => null);
   const [stage, setStage] = useState<"envelope" | "opening" | "table">("envelope");
@@ -87,6 +158,7 @@ export default function Invitation({ children }: { children: ReactNode }) {
   const timer = useRef(0);
   const origin = useRef<PageId | null>(null);
   const sheet = useRef<HTMLDivElement>(null);
+  const envelope = useRef<HTMLDivElement>(null);
   const pieceRefs = useRef(new Map<PageId, HTMLAnchorElement>());
   const returnTo = useRef<HTMLElement | null>(null);
 
@@ -154,6 +226,9 @@ export default function Invitation({ children }: { children: ReactNode }) {
     const box = sheet.current;
     if (!box || !shown) return;
     box.getAnimations({ subtree: true }).forEach(animation => animation.cancel());
+    const fx = envelope.current;
+    fx?.getAnimations({ subtree: true }).forEach(animation => animation.cancel());
+    fx?.removeAttribute("data-playing");
     const body = box.querySelector<HTMLElement>(`[data-page="${shown}"]`);
     const piece = pieceRefs.current.get(shown);
     const still = reducedMotion();
@@ -186,6 +261,7 @@ export default function Invitation({ children }: { children: ReactNode }) {
     const from = origin.current === shown && piece ? piece : null;
     origin.current = null;
     if (still) return;
+    if (from && fx && shown === "rsvp") return growFromEnvelope(fx, box, body, from);
     if (from) {
       box.animate(
         [{ clipPath: outline(), opacity: 0 }, { opacity: 1, offset: 0.25 }, { clipPath: "inset(0 round 0)", opacity: 1 }],
@@ -201,8 +277,7 @@ export default function Invitation({ children }: { children: ReactNode }) {
   return (
     <>
       <div className="backdrop">
-        <Slideshow slides={slideshow} />
-        <div className="garden-overlay" aria-hidden="true" />
+        <Polaroids />
       </div>
 
       {stage !== "table" && (
@@ -221,11 +296,11 @@ export default function Invitation({ children }: { children: ReactNode }) {
               ref={link => { if (link) pieceRefs.current.set(piece.id, link); }}
               href={`#${piece.id}`}
               className={`piece piece-${piece.id}`}
-              style={{ "--i": i, aspectRatio: `${piece.art.width} / ${piece.art.height}` } as CSSProperties}
+              style={{ ...place(piece, i), aspectRatio: `${piece.art.width} / ${piece.art.height}` }}
               aria-label={piece.label}
               onClick={event => openPage(event, piece.id)}
             >
-              {(warm || stage === "table") && <Image src={piece.art} alt="" sizes={piece.sizes} draggable={false} />}
+              {(warm || stage === "table") && <Image src={piece.art} alt="" sizes={sizes(piece)} draggable={false} />}
             </a>
           ))}
         </nav>
@@ -243,6 +318,13 @@ export default function Invitation({ children }: { children: ReactNode }) {
           </button>
         </div>
         {children}
+      </div>
+
+      <div ref={envelope} className="rsvp-envelope" aria-hidden="true">
+        <div className="rsvp-envelope-back" />
+        <div className="rsvp-envelope-card"><span className="script">Kindly RSVP</span></div>
+        <div className="rsvp-envelope-pocket" />
+        <div className="rsvp-envelope-flap" />
       </div>
 
       {veil && (
