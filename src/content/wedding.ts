@@ -50,6 +50,9 @@ export const photos: { src: StaticImageData; alt: string }[] = [
   { src: silo, alt: "Gavin and Ally leaning together against an old concrete silo" },
 ];
 
+// The note to the guests at the foot of the board.
+export const guestMessage = "We can’t wait to celebrate with you. Thank you for being part of our story. With love, Ally & Gavin";
+
 export const rsvpDeadline = "May 16, 2027";
 export const contactEmail = "g.a.walterswedding@gmail.com";
 export const registryUrl = ""; // TODO: the registry link. The Registry page says it's coming until this is set.
@@ -87,8 +90,8 @@ export const hotel = {
 };
 
 export const weddingParty: { name: string; role: string; photo?: StaticImageData }[] = [
-  { name: "Kait", role: "Matron of Honor", photo: kait },
   { name: "Madison", role: "Maid of Honor", photo: madison },
+  { name: "Kait", role: "Matron of Honor", photo: kait },
   { name: "Lorelei", role: "Bridesmaid", photo: lorelei },
   { name: "Sunny", role: "Bridesmaid", photo: sunny },
   { name: "Grace", role: "Bridesmaid", photo: grace },

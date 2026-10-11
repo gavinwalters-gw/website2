@@ -13,65 +13,85 @@ import faq from "@/content/collage/faq.webp";
 import thingsToDo from "@/content/collage/things-to-do.webp";
 import registry from "@/content/collage/registry.webp";
 import dogsDressed from "@/content/clipart/dogs-dressed.webp";
-import greenery from "@/content/clipart/floral-greenery.webp";
-import peony from "@/content/clipart/floral-peony.webp";
+import lily from "@/content/clipart/floral-lily.webp";
+import cosmos from "@/content/clipart/floral-cosmos.webp";
+import doves from "@/content/clipart/doves.webp";
 import stem from "@/content/clipart/floral-stem.webp";
+import bloom from "@/content/clipart/floral-bloom.webp";
+import greenery from "@/content/clipart/floral-greenery.webp";
+import sprig from "@/content/clipart/floral-sprig.webp";
+import peony from "@/content/clipart/floral-peony.webp";
+import vase from "@/content/clipart/floral-vase.webp";
+import romeSteps from "@/content/photos/rome-steps.webp";
+import silo from "@/content/photos/silo.webp";
+import cruwood from "@/content/photos/cruwood.webp";
+import romeGarden from "@/content/photos/rome-garden.webp";
+import ringPhoto from "@/content/photos/ring.webp";
+import withTheDog from "@/content/photos/with-the-dog.webp";
+import { guestMessage } from "@/content/wedding";
 import Polaroids from "./Polaroids";
-import { photos as couplePhotos } from "@/content/wedding";
 
 export type PageId = "date" | "details" | "travel" | "rsvp" | "photos" | "party" | "faq" | "todo" | "registry";
 
 // Where a piece lies on the page: left, top and width in the page's units, and how far it's turned.
 // The page is 100 units wide on phones and 160 on wide screens, and taller than the screen on both, so it
-// scrolls like a scrapbook page.
+// scrolls. On wide screens it's three screens of about 103 units each: the title, a strip of photos and
+// the Save the Date; then the details, RSVP, questions, travel and wedding party; then the registry,
+// photos and things to do. A note to the guests and the dogs finish it, below the board.
 type Spot = [x: number, y: number, width: number, tilt: number];
-const PHONE = { width: 100, height: 285 };
-const WIDE = { width: 160, height: 118 };
+const PHONE = { width: 100, height: 440 };
+const WIDE = { width: 160, height: 311 };
 
-// The pieces on the page, most important first (the order they drop in and are tabbed through). They sit
-// in little groups like a scrapbook: the Save the Date with the RSVP and questions at the top, then the
-// details and travel, then the registry and things to do, then the wedding party and photos.
+const title: { phone: Spot; wide: Spot } = { phone: [0, 3, 100, 0], wide: [0, 3.5, 160, 0] };
+// The strip of photos under the title: the two of them in Rome and at the silo, and the venue. Each
+// photo's share of the strip's width.
+const banner: { phone: Spot; wide: Spot; photos: [StaticImageData, number][] } = {
+  phone: [4, 12, 92, 0], wide: [6.6, 13.2, 148.5, 0],
+  photos: [[romeSteps, 0.384], [silo, 0.176], [cruwood, 0.44]],
+};
+
+// The pieces on the page, in reading order (the order they drop in and are tabbed through).
 const pieces: { id: PageId; art: StaticImageData; label: string; phone: Spot; wide: Spot }[] = [
-  { id: "date", art: saveTheDate, label: "Save the date: June 13, 2027 in Grand Blanc", phone: [4, 8, 64, -2], wide: [12, 8, 54, -2] },
-  { id: "rsvp", art: rsvp, label: "Kindly RSVP", phone: [69, 24, 28, 4], wide: [70, 5, 19, 5] },
-  { id: "faq", art: faq, label: "Questions and answers", phone: [8, 66, 38, -4], wide: [72, 38, 22, -4] },
-  { id: "details", art: details, label: "The details", phone: [56, 76, 31, 3], wide: [114, 10, 18, -4] },
-  { id: "travel", art: travel, label: "Travel and accommodations", phone: [6, 110, 50, -3], wide: [122, 40, 32, 3] },
-  { id: "registry", art: registry, label: "Registry", phone: [4, 158, 54, -2], wide: [24, 64, 36, -2] },
-  { id: "todo", art: thingsToDo, label: "Things to do nearby", phone: [62, 166, 34, 3], wide: [57, 91, 26, 3] },
-  { id: "party", art: party, label: "The wedding party", phone: [8, 204, 32, -3], wide: [96, 73, 21, -4] },
-  { id: "photos", art: photos, label: "Photos", phone: [50, 213, 44, 4], wide: [121, 88, 24, 3] },
+  { id: "date", art: saveTheDate, label: "Save the date: June 13, 2027 in Grand Blanc", phone: [16, 42, 72, -1], wide: [49.3, 52.8, 59, 0] },
+  { id: "details", art: details, label: "The details", phone: [6, 116, 38, -2], wide: [17.2, 105.4, 29, 0] },
+  { id: "rsvp", art: rsvp, label: "Kindly RSVP", phone: [50, 176, 36, 3], wide: [66, 119.2, 32.3, 0] },
+  { id: "faq", art: faq, label: "Questions and answers", phone: [54, 130, 40, 3], wide: [111.2, 112, 34, 0] },
+  { id: "travel", art: travel, label: "Travel and accommodations", phone: [4, 214, 44, -2], wide: [28.7, 172, 31.7, 0] },
+  { id: "party", art: party, label: "The wedding party", phone: [58, 240, 34, 3], wide: [108, 164.5, 25.7, 2] },
+  { id: "registry", art: registry, label: "Registry", phone: [6, 300, 54, -2], wide: [16.5, 221, 45.5, 0] },
+  { id: "photos", art: photos, label: "Photos", phone: [52, 336, 44, 3], wide: [110.5, 222.6, 35.6, 0] },
+  { id: "todo", art: thingsToDo, label: "Things to do nearby", phone: [10, 378, 46, -2], wide: [69.3, 248, 38, 0] },
 ];
 
-// What else is stuck down, behind the pieces, just for looks: polaroids of the two of them (taped or
-// pinned, with a word written underneath) and watercolour flowers tucked under the groups' corners, and a
-// note signed off with a heart in pink pen and the dogs. Some only fit on wide screens.
-type Decor = { phone?: Spot; wide: Spot } & (
-  | { kind: "photo"; photo: number; caption: string; hold: "pin" | "tape" }
-  | { kind: "note"; text: string }
-  | { kind: "clip"; art: StaticImageData }
-  | { kind: "heart" }
-);
-const decor: Decor[] = [
-  { kind: "photo", photo: 2, caption: "she said yes!", hold: "tape", phone: [74, 2, 19, 8], wide: [2, 3, 13, -10] },
-  { kind: "clip", art: greenery, phone: [38, 56, 18, 22], wide: [86, 20, 12, 30] },
-  { kind: "photo", photo: 1, caption: "Rome", hold: "pin", phone: [70, 250, 20, -5], wide: [104, 6, 13, -7] },
-  { kind: "clip", art: peony, wide: [117, 60, 10, 8] },
-  { kind: "photo", photo: 0, caption: "us", hold: "tape", phone: [62, 124, 22, 6], wide: [45, 84, 12, -7] },
-  { kind: "photo", photo: 3, caption: "the three of us", hold: "pin", wide: [117, 67, 13, 8] },
-  { kind: "clip", art: stem, wide: [89, 92, 8, -16] },
-  { kind: "note", text: "We can’t wait to celebrate with you!", phone: [10, 256, 28, -3], wide: [10, 94, 17, -3] },
-  { kind: "heart", phone: [33, 252, 6, 16], wide: [25.5, 91.5, 4, 16] },
-  { kind: "clip", art: dogsDressed, phone: [40, 262, 27, -2], wide: [29, 103, 14, -2] },
+// Clip art scattered between the pieces, just for looks.
+const clips: { art: StaticImageData; phone: Spot; wide: Spot }[] = [
+  { art: doves, phone: [1, 40, 17, 0], wide: [5.6, 56.4, 20.8, 0] },
+  { art: lily, phone: [2, 92, 14, -8], wide: [28, 78, 21.5, 0] },
+  { art: stem, phone: [86, 40, 11, 0], wide: [122, 57, 13, 0] },
+  { art: cosmos, phone: [44, 112, 9, 0], wide: [52.8, 108, 10.5, 0] },
+  { art: greenery, phone: [86, 222, 14, 0], wide: [133, 146, 20, 0] },
+  { art: bloom, phone: [36, 258, 14, 0], wide: [77, 176, 15, 0] },
+  { art: sprig, phone: [2, 266, 9, 0], wide: [10.9, 195, 9, 0] },
+  { art: peony, phone: [82, 280, 15, 0], wide: [138, 202, 18, 0] },
+  { art: vase, phone: [40, 414, 16, 0], wide: [44.5, 279.4, 16.5, 0] },
+];
+
+// Polaroids of the two of them taped between the pieces, each photo cropped to its own shape (width / height).
+const snaps: { photo: StaticImageData; ratio: number; phone: Spot; wide: Spot }[] = [
+  { photo: romeGarden, ratio: 75 / 80, phone: [70, 100, 24, 3], wide: [129.7, 86.5, 24.8, 4] },
+  { photo: withTheDog, ratio: 64 / 60, phone: [8, 178, 24, -3], wide: [8.9, 151.6, 21.1, -4] },
+  { photo: ringPhoto, ratio: 73 / 67, phone: [64, 300, 26, 3], wide: [74.3, 207, 24, 3] },
+  { photo: silo, ratio: 81 / 76, phone: [6, 342, 28, -3], wide: [6.6, 256.3, 26.7, -3] },
+  { photo: romeSteps, ratio: 78 / 70, phone: [62, 380, 28, 3], wide: [125.4, 270, 25.7, 4] },
 ];
 
 // How wide each piece is drawn (the table's width is set in site.css), wide screens first, so phones
 // fetch only the pixels they show.
-const sizes = ({ phone, wide }: { phone?: Spot; wide: Spot }) => {
+const sizes = ({ phone, wide }: { phone: Spot; wide: Spot }) => {
   const share = wide[2] / WIDE.width;
-  return `(min-aspect-ratio: 5/4) min(${(share * 96).toFixed(1)}vw, ${(share * 1400).toFixed(0)}px), ${((phone ?? wide)[2] * 0.92).toFixed(1)}vw`;
+  return `(min-aspect-ratio: 5/4) min(${(share * 96).toFixed(1)}vw, ${(share * 1400).toFixed(0)}px), ${(phone[2] * 0.92).toFixed(1)}vw`;
 };
-const place = ({ phone = [0, 0, 0, 0], wide }: { phone?: Spot; wide: Spot }, i: number) => ({
+const place = ({ phone, wide }: { phone: Spot; wide: Spot }, i: number) => ({
   "--i": i,
   "--px": phone[0] / PHONE.width, "--py": phone[1] / PHONE.height, "--pw": phone[2] / PHONE.width, "--pt": `${phone[3]}deg`,
   "--wx": wide[0] / WIDE.width, "--wy": wide[1] / WIDE.height, "--ww": wide[2] / WIDE.width, "--wt": `${wide[3]}deg`,
@@ -334,6 +354,19 @@ export default function Invitation({ children }: { children: ReactNode }) {
       {/* The pieces come back to life as soon as a page starts shrinking away, so a tap then opens the next. */}
       <main className="table" data-arrived={stage === "table" || undefined} inert={stage !== "table" || (!!shown && !leaving)}>
         <nav className="pieces" aria-label="The invitation">
+          <p className="board-title" style={place(title, 0)} aria-hidden="true">Walters Wedding</p>
+          <div className="banner" style={place(banner, 0)} aria-hidden="true">
+            {(warm || stage === "table") && banner.photos.map(([photo, share]) => (
+              <Image
+                key={photo.src}
+                src={photo}
+                alt=""
+                style={{ flexGrow: share }}
+                sizes={sizes({ phone: [0, 0, banner.phone[2] * share, 0], wide: [0, 0, banner.wide[2] * share, 0] })}
+                draggable={false}
+              />
+            ))}
+          </div>
           {pieces.map((piece, i) => (
             <a
               key={piece.id}
@@ -347,23 +380,26 @@ export default function Invitation({ children }: { children: ReactNode }) {
               {(warm || stage === "table") && <Image src={piece.art} alt="" sizes={sizes(piece)} draggable={false} />}
             </a>
           ))}
-          {decor.map((item, i) => (
+          {snaps.map((snap, i) => (
+            <span key={snap.photo.src} className="decor snap" style={place(snap, i)} aria-hidden="true">
+              {(warm || stage === "table") && <Image src={snap.photo} alt="" style={{ aspectRatio: snap.ratio }} sizes={sizes(snap)} draggable={false} />}
+            </span>
+          ))}
+          {clips.map((clip, i) => (
             <span
-              key={i}
-              className={`decor decor-${item.kind}${item.kind === "photo" ? ` decor-${item.hold}` : ""}${item.phone ? "" : " decor-wide"}`}
-              style={{ ...place(item, i), "--tape": `${((i * 7) % 11) - 5}deg`, aspectRatio: item.kind === "clip" ? `${item.art.width} / ${item.art.height}` : undefined } as CSSProperties}
+              key={clip.art.src}
+              className="decor"
+              style={{ ...place(clip, i), aspectRatio: `${clip.art.width} / ${clip.art.height}` }}
               aria-hidden="true"
             >
-              {(warm || stage === "table") && item.kind === "clip" && <Image src={item.art} alt="" sizes={sizes(item)} draggable={false} />}
-              {(warm || stage === "table") && item.kind === "photo" && <Image src={couplePhotos[item.photo].src} alt="" sizes={sizes(item)} draggable={false} />}
-              {item.kind === "photo" && <span className="script">{item.caption}</span>}
-              {item.kind === "note" && <span className="script">{item.text}</span>}
-              {item.kind === "heart" && (
-                <svg viewBox="0 0 100 92"><path d="M52 86C30 70 6 52 9 30 11 13 30 6 43 18 47 22 49 27 50 31 52 19 62 8 77 9 94 11 98 31 89 47 81 61 66 73 49 84 46 86 44 87 41 85" /></svg>
-              )}
+              {(warm || stage === "table") && <Image src={clip.art} alt="" sizes={sizes(clip)} draggable={false} />}
             </span>
           ))}
         </nav>
+        <footer className="send-off">
+          <p>{guestMessage}</p>
+          {(warm || stage === "table") && <Image src={dogsDressed} alt="" sizes="180px" draggable={false} />}
+        </footer>
       </main>
 
       {/* The pages (one <article data-page> each) all stay in the sheet; the stylesheet shows the open one. */}

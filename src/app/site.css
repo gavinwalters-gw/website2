@@ -79,14 +79,14 @@ html:has(.gate) { overflow: hidden; }
 }
 
 /* ---------- The table: painted pieces that each open a page ---------- */
-/* The painted pieces in little groups on the paper like a scrapbook page, a little askew, none covering
-   another, with polaroids, flowers, a note, a heart in pink pen and the dogs tucked behind them.
-   Invitation.tsx says where each lies: left, top and width as a share of the page, for phones and for
-   wide screens. The page is taller than the screen and scrolls. When the envelope opens the pieces drop
-   onto it one after another as the white clears, and the rest fades in after. */
-.table { position: relative; z-index: 1; display: grid; place-items: center; min-height: 100svh; padding: max(16px, env(safe-area-inset-top)) var(--gutter) max(28px, calc(env(safe-area-inset-bottom) + 16px)); overflow: hidden; pointer-events: none; }
+/* The board: a title and a strip of photos, then the painted pieces scattered down the paper, a little
+   askew, none covering another, with photos and clip art between them. Invitation.tsx says where each lies: left,
+   top and width as a share of the page, for phones and for wide screens. The page is taller than the
+   screen and scrolls. When the envelope opens the pieces drop onto it one after another as the white
+   clears, and the rest fades in after. A note to the guests on white paper finishes it. */
+.table { position: relative; z-index: 1; display: grid; place-items: center; min-height: 100svh; padding: max(16px, env(safe-area-inset-top)) var(--gutter) 0; overflow: hidden; pointer-events: none; }
 .table:not([data-arrived]) { visibility: hidden; } /* the envelope has the screen to itself until it's opened */
-.pieces { position: relative; width: min(100%, 560px); aspect-ratio: 100 / 285; }
+.pieces { position: relative; width: min(100%, 560px); aspect-ratio: 100 / 440; container-type: inline-size; }
 .piece, .decor {
   --x: var(--px); --y: var(--py); --w: var(--pw); --tilt: var(--pt); --spin: -7deg;
   position: absolute; left: calc(var(--x) * 100%); top: calc(var(--y) * 100%); width: calc(var(--w) * 100%);
@@ -95,31 +95,25 @@ html:has(.gate) { overflow: hidden; }
   transition: transform .55s var(--spring), filter .55s var(--ease); -webkit-tap-highlight-color: transparent; touch-action: manipulation;
 }
 .piece:nth-child(even) { --spin: 7deg; }
-.decor { z-index: -1; pointer-events: none; filter: drop-shadow(0 6px 8px #3c2d1e26); }
-.decor-clip { filter: none; mix-blend-mode: multiply; } /* printed onto the paper, so the art's pale ground disappears into it */
-.decor-wide { display: none; }
-/* A polaroid, with a word written on its bottom edge, held on by a pin or a strip of washi tape. */
-.decor-photo { box-sizing: border-box; padding: calc(var(--w) * 6%) calc(var(--w) * 6%) 0; background: #fffefa; container-type: inline-size; } /* a share of the table's width, like --w */
-.decor-photo img { aspect-ratio: 1; object-fit: cover; }
-.decor-photo .script { display: block; padding: 3cqi 0 5cqi; font-size: 18cqi; text-align: center; color: var(--ink); white-space: nowrap; }
-.decor-pin::before { content: ""; position: absolute; top: -3cqi; left: 50%; width: 14cqi; aspect-ratio: 1; translate: -50%; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 12%, #d98b8b 30%, #a85656 100%); box-shadow: 1px 3px 3px #3c2d1e4d; }
-.decor-tape::before, .decor-note::before { content: ""; position: absolute; top: -6cqi; left: 50%; width: 46cqi; height: 13cqi; translate: -50%; rotate: var(--tape); background: repeating-linear-gradient(45deg, #e9c3c2c7 0 6px, #f2d6d4c7 6px 12px); box-shadow: 0 1px 2px #3c2d1e1a; }
-.decor-photo:nth-child(3n)::before { background: #c9d6bfcc; } /* the tape changes from strip to strip */
-.decor-photo:nth-child(3n + 1)::before { background: radial-gradient(circle, #fffaf6 1.4px, transparent 2px) 0 0 / 8px 8px, #e6b8bccc; }
-/* A heart drawn in pink pen. */
-.decor-heart svg { display: block; width: 100%; overflow: visible; fill: none; stroke: #d48c93; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
-.decor-heart { filter: none; }
-/* A little note on ruled card, taped down. */
-.decor-note { box-sizing: border-box; padding: calc(var(--w) * 14%) calc(var(--w) * 10%) calc(var(--w) * 10%); background: #fffdf7; container-type: inline-size; }
-.decor-note::before { background: repeating-linear-gradient(45deg, #c9d3bccc 0 6px, #d7dfcccc 6px 12px); }
-.decor-note .script { display: block; font-size: 15cqi; line-height: 19cqi; text-align: center; color: var(--ink); background: repeating-linear-gradient(transparent 0 calc(19cqi - 1px), #d6e0e8 calc(19cqi - 1px) 19cqi); }
+.decor { z-index: -1; pointer-events: none; filter: none; }
+/* The polaroids: a white card with a deeper bottom edge and a strip of tape across the top. Padding is
+   set from the card's own width (--w), as a percentage would be of the whole page. */
+.snap { box-sizing: border-box; padding: calc(var(--w) * 5%) calc(var(--w) * 5%) calc(var(--w) * 18%); background: #fffdf8; box-shadow: 0 12px 22px -12px #3c2d1e59, 0 1px 3px #3c2d1e26; }
+.snap::before { content: ""; position: absolute; top: -4%; left: 30%; width: 40%; aspect-ratio: 10 / 3; background: #e6d6b6d9; box-shadow: 0 1px 2px #3c2d1e1a; transform: rotate(-3deg); }
+.snap:nth-of-type(even)::before { background: #ebc2bcd9; transform: rotate(4deg); }
+.decor.snap img { object-fit: cover; animation: none; }
+/* The title at the top, and the strip of photos under it. */
+.board-title, .banner { --x: var(--px); --y: var(--py); --w: var(--pw); }
+.board-title { position: absolute; left: 0; top: calc(var(--y) * 100%); width: 100%; margin: 0; font: 400 7cqi/1.2 var(--font-serif), Georgia, serif; letter-spacing: .01em; text-align: center; color: var(--ink); }
+.banner { position: absolute; left: calc(var(--x) * 100%); top: calc(var(--y) * 100%); width: calc(var(--w) * 100%); aspect-ratio: 148.5 / 38.4; display: flex; overflow: hidden; border: 1px solid #5b5249; box-shadow: 0 10px 22px -14px #3c2d1e66; }
+.banner img { flex: 1 1 0; min-width: 0; height: 100%; object-fit: cover; user-select: none; -webkit-user-drag: none; }
 .piece img, .decor img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-drag: none; }
 /* Each piece sways a little on the table, as if in a breeze, each at its own pace so they never move
    together. It's the painting inside that sways, so it doesn't fight the drop-in or the lift on hover.
    They rest while a page covers them. */
-.piece img, .decor-clip img { transform-origin: 50% 80%; animation: sway 5.2s ease-in-out calc(var(--i) * -1.3s) infinite alternate; }
-.piece:nth-child(3n + 1) img, .decor-clip:nth-child(3n + 1) img { animation-duration: 6.1s; }
-.piece:nth-child(3n + 2) img, .decor-clip:nth-child(3n + 2) img { animation-duration: 4.6s; animation-direction: alternate-reverse; }
+.piece img, .decor img { transform-origin: 50% 80%; animation: sway 5.2s ease-in-out calc(var(--i) * -1.3s) infinite alternate; }
+.piece:nth-child(3n + 1) img, .decor:nth-child(3n + 1) img { animation-duration: 6.1s; }
+.piece:nth-child(3n + 2) img, .decor:nth-child(3n + 2) img { animation-duration: 4.6s; animation-direction: alternate-reverse; }
 @keyframes sway {
   from { transform: translateY(0) rotate(-1.6deg); }
   to { transform: translateY(-3.5%) rotate(1.6deg); }
@@ -127,15 +121,19 @@ html:has(.gate) { overflow: hidden; }
 html:has(.sheet:not([hidden])) :is(.piece, .decor) img { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) { .piece img, .decor img { animation: none; } }
 @media (min-aspect-ratio: 5/4) {
-  .pieces { width: min(100%, 1400px); aspect-ratio: 160 / 118; }
-  .decor-wide { display: block; }
-  .piece, .decor { --x: var(--wx); --y: var(--wy); --w: var(--ww); --tilt: var(--wt); }
+  .pieces { width: min(100%, 1400px); aspect-ratio: 160 / 311; }
+  .board-title { font-size: 2.9cqi; }
+  .piece, .decor, .board-title, .banner { --x: var(--wx); --y: var(--wy); --w: var(--ww); --tilt: var(--wt); }
 }
 @media (hover: hover) {
   .piece:hover { transform: translateY(-10px) rotate(calc(var(--tilt) * .4)) scale(1.03); filter: drop-shadow(0 26px 24px #3c2d1e38) drop-shadow(0 4px 6px #3c2d1e1a); }
 }
 .piece:active { transform: rotate(var(--tilt)) scale(.97); transition-duration: .15s; }
 .piece:focus-visible { outline: none; filter: drop-shadow(0 0 2px var(--olive)) drop-shadow(0 10px 14px #3c2d1e33); }
+/* The note to the guests, on white paper the width of the screen, with the dogs to sign it off. */
+.send-off { justify-self: stretch; display: grid; justify-items: center; gap: 28px; margin: 48px calc(-1 * var(--gutter)) 0; padding: 72px var(--gutter) max(40px, calc(env(safe-area-inset-bottom) + 24px)); background: #fff; text-align: center; }
+.send-off p { max-width: 34ch; margin: 0; font: italic 400 clamp(20px, 2.2vw, 28px)/1.5 var(--font-serif), Georgia, serif; color: var(--ink); text-wrap: balance; }
+.send-off img { width: 160px; height: auto; user-select: none; -webkit-user-drag: none; }
 /* Dropped onto the table: each piece falls in from a little higher, turned a little further, and
    settles with a small overshoot. */
 .table[data-arrived] .piece { animation: piece-in 1s var(--spring) backwards; animation-delay: calc(.2s + var(--i) * .12s); }
@@ -143,7 +141,7 @@ html:has(.sheet:not([hidden])) :is(.piece, .decor) img { animation-play-state: p
   from { opacity: 0; transform: translateY(46px) rotate(calc(var(--tilt) + var(--spin))) scale(.9); }
   40% { opacity: 1; }
 }
-.table[data-arrived] .decor { animation: decor-in 1.2s var(--ease) backwards; animation-delay: calc(1.1s + var(--i) * .08s); }
+.table[data-arrived] :is(.decor, .board-title, .banner, .send-off) { animation: decor-in 1.2s var(--ease) backwards; animation-delay: calc(1.1s + var(--i) * .08s); }
 @keyframes decor-in { from { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .table[data-arrived] :is(.piece, .decor) { animation: none; } }
 
