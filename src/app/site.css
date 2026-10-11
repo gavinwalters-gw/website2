@@ -44,8 +44,8 @@ html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust
 /* The painting (envelope and both bouquets, one image) over the polaroids, with the envelope itself
    centred on screen: it sits at 50% across and 52.7% down the painting. On tall phones the painting is
    wider than the screen so the envelope stays a good size and the bouquets run off the sides. The
-   screen is fixed over the rest of the site until it's opened. The polaroids behind it (.backdrop) stay
-   put behind the pieces. */
+   screen is fixed over the rest of the site until it's opened. The polaroids behind it (.backdrop) go
+   once it's open, leaving clean paper behind the pieces. */
 html:has(.gate) { overflow: hidden; }
 .backdrop { position: fixed; inset: 0; z-index: 0; height: 100lvh; overflow: hidden; isolation: isolate; background: var(--paper); }
 .gate { position: fixed; inset: 0; z-index: 40; height: 100lvh; overflow: hidden; pointer-events: none; }
@@ -67,8 +67,8 @@ html:has(.gate) { overflow: hidden; }
 @keyframes wash-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes wash-out { from { opacity: 1; } to { opacity: 0; } }
 
-/* The polaroids behind everything, askew, out of focus and faded into the paper so the paintings in
-   front stay the thing to look at. */
+/* The polaroids behind the envelope, askew, out of focus and faded into the paper so the envelope in
+   front stays the thing to look at. */
 .polaroids { position: absolute; inset: 0; }
 .polaroid { margin: 0; padding: 5% 5% 19%; background: #fffefa; box-shadow: 0 1px 2px #3c2d1e1f, 0 12px 26px -10px #3c2d1e59; }
 .polaroid img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; }
@@ -79,14 +79,15 @@ html:has(.gate) { overflow: hidden; }
 }
 
 /* ---------- The table: painted pieces that each open a page ---------- */
-/* The pieces scattered over the polaroids, a little askew, none covering another. Invitation.tsx says
-   where each lies: left, top and width as a share of the table, for phones and for wide screens. On
-   phones the table is a little taller than the screen and scrolls; on wide screens it fits the screen.
-   When the envelope opens they drop onto the table one after another as the white clears. */
+/* The painted pieces in little groups on the paper like a scrapbook page, a little askew, none covering
+   another, with polaroids, flowers, a note, a heart in pink pen and the dogs tucked behind them.
+   Invitation.tsx says where each lies: left, top and width as a share of the page, for phones and for
+   wide screens. The page is taller than the screen and scrolls. When the envelope opens the pieces drop
+   onto it one after another as the white clears, and the rest fades in after. */
 .table { position: relative; z-index: 1; display: grid; place-items: center; min-height: 100svh; padding: max(16px, env(safe-area-inset-top)) var(--gutter) max(28px, calc(env(safe-area-inset-bottom) + 16px)); overflow: hidden; pointer-events: none; }
 .table:not([data-arrived]) { visibility: hidden; } /* the envelope has the screen to itself until it's opened */
-.pieces { position: relative; width: min(100%, 560px); aspect-ratio: 100 / 240; }
-.piece {
+.pieces { position: relative; width: min(100%, 560px); aspect-ratio: 100 / 285; }
+.piece, .decor {
   --x: var(--px); --y: var(--py); --w: var(--pw); --tilt: var(--pt); --spin: -7deg;
   position: absolute; left: calc(var(--x) * 100%); top: calc(var(--y) * 100%); width: calc(var(--w) * 100%);
   display: block; transform: rotate(var(--tilt)); pointer-events: auto;
@@ -94,22 +95,41 @@ html:has(.gate) { overflow: hidden; }
   transition: transform .55s var(--spring), filter .55s var(--ease); -webkit-tap-highlight-color: transparent; touch-action: manipulation;
 }
 .piece:nth-child(even) { --spin: 7deg; }
-.piece img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-drag: none; }
+.decor { z-index: -1; pointer-events: none; filter: drop-shadow(0 6px 8px #3c2d1e26); }
+.decor-clip { filter: none; mix-blend-mode: multiply; } /* printed onto the paper, so the art's pale ground disappears into it */
+.decor-wide { display: none; }
+/* A polaroid, with a word written on its bottom edge, held on by a pin or a strip of washi tape. */
+.decor-photo { box-sizing: border-box; padding: calc(var(--w) * 6%) calc(var(--w) * 6%) 0; background: #fffefa; container-type: inline-size; } /* a share of the table's width, like --w */
+.decor-photo img { aspect-ratio: 1; object-fit: cover; }
+.decor-photo .script { display: block; padding: 3cqi 0 5cqi; font-size: 18cqi; text-align: center; color: var(--ink); white-space: nowrap; }
+.decor-pin::before { content: ""; position: absolute; top: -3cqi; left: 50%; width: 14cqi; aspect-ratio: 1; translate: -50%; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 12%, #d98b8b 30%, #a85656 100%); box-shadow: 1px 3px 3px #3c2d1e4d; }
+.decor-tape::before, .decor-note::before { content: ""; position: absolute; top: -6cqi; left: 50%; width: 46cqi; height: 13cqi; translate: -50%; rotate: var(--tape); background: repeating-linear-gradient(45deg, #e9c3c2c7 0 6px, #f2d6d4c7 6px 12px); box-shadow: 0 1px 2px #3c2d1e1a; }
+.decor-photo:nth-child(3n)::before { background: #c9d6bfcc; } /* the tape changes from strip to strip */
+.decor-photo:nth-child(3n + 1)::before { background: radial-gradient(circle, #fffaf6 1.4px, transparent 2px) 0 0 / 8px 8px, #e6b8bccc; }
+/* A heart drawn in pink pen. */
+.decor-heart svg { display: block; width: 100%; overflow: visible; fill: none; stroke: #d48c93; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+.decor-heart { filter: none; }
+/* A little note on ruled card, taped down. */
+.decor-note { box-sizing: border-box; padding: calc(var(--w) * 14%) calc(var(--w) * 10%) calc(var(--w) * 10%); background: #fffdf7; container-type: inline-size; }
+.decor-note::before { background: repeating-linear-gradient(45deg, #c9d3bccc 0 6px, #d7dfcccc 6px 12px); }
+.decor-note .script { display: block; font-size: 15cqi; line-height: 19cqi; text-align: center; color: var(--ink); background: repeating-linear-gradient(transparent 0 calc(19cqi - 1px), #d6e0e8 calc(19cqi - 1px) 19cqi); }
+.piece img, .decor img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-drag: none; }
 /* Each piece sways a little on the table, as if in a breeze, each at its own pace so they never move
    together. It's the painting inside that sways, so it doesn't fight the drop-in or the lift on hover.
    They rest while a page covers them. */
-.piece img { transform-origin: 50% 80%; animation: sway 5.2s ease-in-out calc(var(--i) * -1.3s) infinite alternate; }
-.piece:nth-child(3n + 1) img { animation-duration: 6.1s; }
-.piece:nth-child(3n + 2) img { animation-duration: 4.6s; animation-direction: alternate-reverse; }
+.piece img, .decor-clip img { transform-origin: 50% 80%; animation: sway 5.2s ease-in-out calc(var(--i) * -1.3s) infinite alternate; }
+.piece:nth-child(3n + 1) img, .decor-clip:nth-child(3n + 1) img { animation-duration: 6.1s; }
+.piece:nth-child(3n + 2) img, .decor-clip:nth-child(3n + 2) img { animation-duration: 4.6s; animation-direction: alternate-reverse; }
 @keyframes sway {
   from { transform: translateY(0) rotate(-1.6deg); }
   to { transform: translateY(-3.5%) rotate(1.6deg); }
 }
-html:has(.sheet:not([hidden])) .piece img { animation-play-state: paused; }
-@media (prefers-reduced-motion: reduce) { .piece img { animation: none; } }
+html:has(.sheet:not([hidden])) :is(.piece, .decor) img { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .piece img, .decor img { animation: none; } }
 @media (min-aspect-ratio: 5/4) {
-  .pieces { width: min(100%, 1500px, calc((100svh - 44px) * 160 / 84)); aspect-ratio: 160 / 84; }
-  .piece { --x: var(--wx); --y: var(--wy); --w: var(--ww); --tilt: var(--wt); }
+  .pieces { width: min(100%, 1400px); aspect-ratio: 160 / 118; }
+  .decor-wide { display: block; }
+  .piece, .decor { --x: var(--wx); --y: var(--wy); --w: var(--ww); --tilt: var(--wt); }
 }
 @media (hover: hover) {
   .piece:hover { transform: translateY(-10px) rotate(calc(var(--tilt) * .4)) scale(1.03); filter: drop-shadow(0 26px 24px #3c2d1e38) drop-shadow(0 4px 6px #3c2d1e1a); }
@@ -123,7 +143,9 @@ html:has(.sheet:not([hidden])) .piece img { animation-play-state: paused; }
   from { opacity: 0; transform: translateY(46px) rotate(calc(var(--tilt) + var(--spin))) scale(.9); }
   40% { opacity: 1; }
 }
-@media (prefers-reduced-motion: reduce) { .table[data-arrived] .piece { animation: none; } }
+.table[data-arrived] .decor { animation: decor-in 1.2s var(--ease) backwards; animation-delay: calc(1.1s + var(--i) * .08s); }
+@keyframes decor-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .table[data-arrived] :is(.piece, .decor) { animation: none; } }
 
 /* ---------- The pages ---------- */
 /* A sheet of paper over the table, scrolling on its own. It grows out of the piece that opened it (the
@@ -172,6 +194,7 @@ html:has(.sheet:not([hidden])) { overflow: hidden; }
 @media (hover: hover) { .sheet-close:hover { transform: rotate(90deg) scale(1.08); } }
 .sheet-close:active { transform: scale(.88); transition-duration: .12s; }
 .sheet-close:focus-visible { outline: 2px solid var(--olive); outline-offset: 2px; border-radius: 50%; }
+.sheet[data-leaving] { pointer-events: none; }
 .sheet[data-leaving] .sheet-close { transform: rotate(-90deg) scale(.5); opacity: 0; transition: transform .3s ease-in, opacity .3s ease-in; }
 @keyframes close-in { from { opacity: 0; transform: rotate(-120deg) scale(.3); } }
 @media (prefers-reduced-motion: reduce) { .sheet-close { animation: none; } }

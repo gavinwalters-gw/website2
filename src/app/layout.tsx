@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Newsreader, Pinyon_Script } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import "./site.css";
 
@@ -24,7 +25,14 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" data-scroll-behavior="smooth" className={`${serif.variable} ${script.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* The envelope is painted before the page's own script has loaded, and a tap on it then would be
+            lost, so this notes the tap and Invitation opens the envelope as soon as it's ready. */}
+        <Script id="early-tap" strategy="beforeInteractive">
+          {`document.addEventListener("click", function (event) { if (event.target.closest && event.target.closest(".gate-envelope")) window.envelopeTapped = true; }, true);`}
+        </Script>
+      </body>
     </html>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Image, { type StaticImageData } from "next/image";
-import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import invitation from "@/content/gate/invitation.webp";
 import saveTheDate from "@/content/collage/save-the-date.webp";
 import details from "@/content/collage/details.webp";
@@ -12,37 +12,66 @@ import party from "@/content/collage/wedding-party.webp";
 import faq from "@/content/collage/faq.webp";
 import thingsToDo from "@/content/collage/things-to-do.webp";
 import registry from "@/content/collage/registry.webp";
+import dogsDressed from "@/content/clipart/dogs-dressed.webp";
+import greenery from "@/content/clipart/floral-greenery.webp";
+import peony from "@/content/clipart/floral-peony.webp";
+import stem from "@/content/clipart/floral-stem.webp";
 import Polaroids from "./Polaroids";
+import { photos as couplePhotos } from "@/content/wedding";
 
 export type PageId = "date" | "details" | "travel" | "rsvp" | "photos" | "party" | "faq" | "todo" | "registry";
 
-// Where a piece lies on the table: left, top and width in the table's units, and how far it's turned.
-// The table is 100 units wide and 240 tall on phones (a little over a screen, so it scrolls), and
-// 160 by 84 on wide screens (one screen).
+// Where a piece lies on the page: left, top and width in the page's units, and how far it's turned.
+// The page is 100 units wide on phones and 160 on wide screens, and taller than the screen on both, so it
+// scrolls like a scrapbook page.
 type Spot = [x: number, y: number, width: number, tilt: number];
-const PHONE = { width: 100, height: 240 };
-const WIDE = { width: 160, height: 84 };
+const PHONE = { width: 100, height: 285 };
+const WIDE = { width: 160, height: 118 };
 
-// The pieces on the table, in reading order (the order they drop in).
+// The pieces on the page, most important first (the order they drop in and are tabbed through). They sit
+// in little groups like a scrapbook: the Save the Date with the RSVP and questions at the top, then the
+// details and travel, then the registry and things to do, then the wedding party and photos.
 const pieces: { id: PageId; art: StaticImageData; label: string; phone: Spot; wide: Spot }[] = [
-  { id: "date", art: saveTheDate, label: "Save the date: June 13, 2027 in Grand Blanc", phone: [4, 2, 62, -2], wide: [56, 3, 46, -2] },
-  { id: "details", art: details, label: "The details", phone: [6, 58, 34, -3], wide: [32, 10, 19, -3] },
-  { id: "travel", art: travel, label: "Travel and accommodations", phone: [42, 108, 52, -2], wide: [65, 46, 30, -2] },
-  { id: "rsvp", art: rsvp, label: "Kindly RSVP", phone: [6, 110, 30, 3], wide: [106, 9, 18, 3] },
-  { id: "photos", art: photos, label: "Photos", phone: [46, 60, 48, 3], wide: [3, 8, 26, -4] },
-  { id: "party", art: party, label: "The wedding party", phone: [68, 8, 28, 4], wide: [131, 8, 21, 4] },
-  { id: "faq", art: faq, label: "Questions and answers", phone: [8, 164, 36, -4], wide: [6, 50, 21, 3] },
-  { id: "todo", art: thingsToDo, label: "Things to do nearby", phone: [52, 160, 42, 3], wide: [29, 54, 25, 2] },
-  { id: "registry", art: registry, label: "Registry", phone: [22, 202, 56, -2], wide: [122, 50, 32, -3] },
+  { id: "date", art: saveTheDate, label: "Save the date: June 13, 2027 in Grand Blanc", phone: [4, 8, 64, -2], wide: [12, 8, 54, -2] },
+  { id: "rsvp", art: rsvp, label: "Kindly RSVP", phone: [69, 24, 28, 4], wide: [70, 5, 19, 5] },
+  { id: "faq", art: faq, label: "Questions and answers", phone: [8, 66, 38, -4], wide: [72, 38, 22, -4] },
+  { id: "details", art: details, label: "The details", phone: [56, 76, 31, 3], wide: [114, 10, 18, -4] },
+  { id: "travel", art: travel, label: "Travel and accommodations", phone: [6, 110, 50, -3], wide: [122, 40, 32, 3] },
+  { id: "registry", art: registry, label: "Registry", phone: [4, 158, 54, -2], wide: [24, 64, 36, -2] },
+  { id: "todo", art: thingsToDo, label: "Things to do nearby", phone: [62, 166, 34, 3], wide: [57, 91, 26, 3] },
+  { id: "party", art: party, label: "The wedding party", phone: [8, 204, 32, -3], wide: [96, 73, 21, -4] },
+  { id: "photos", art: photos, label: "Photos", phone: [50, 213, 44, 4], wide: [121, 88, 24, 3] },
+];
+
+// What else is stuck down, behind the pieces, just for looks: polaroids of the two of them (taped or
+// pinned, with a word written underneath) and watercolour flowers tucked under the groups' corners, and a
+// note signed off with a heart in pink pen and the dogs. Some only fit on wide screens.
+type Decor = { phone?: Spot; wide: Spot } & (
+  | { kind: "photo"; photo: number; caption: string; hold: "pin" | "tape" }
+  | { kind: "note"; text: string }
+  | { kind: "clip"; art: StaticImageData }
+  | { kind: "heart" }
+);
+const decor: Decor[] = [
+  { kind: "photo", photo: 2, caption: "she said yes!", hold: "tape", phone: [74, 2, 19, 8], wide: [2, 3, 13, -10] },
+  { kind: "clip", art: greenery, phone: [38, 56, 18, 22], wide: [86, 20, 12, 30] },
+  { kind: "photo", photo: 1, caption: "Rome", hold: "pin", phone: [70, 250, 20, -5], wide: [104, 6, 13, -7] },
+  { kind: "clip", art: peony, wide: [117, 60, 10, 8] },
+  { kind: "photo", photo: 0, caption: "us", hold: "tape", phone: [62, 124, 22, 6], wide: [45, 84, 12, -7] },
+  { kind: "photo", photo: 3, caption: "the three of us", hold: "pin", wide: [117, 67, 13, 8] },
+  { kind: "clip", art: stem, wide: [89, 92, 8, -16] },
+  { kind: "note", text: "We can’t wait to celebrate with you!", phone: [10, 256, 28, -3], wide: [10, 94, 17, -3] },
+  { kind: "heart", phone: [33, 252, 6, 16], wide: [25.5, 91.5, 4, 16] },
+  { kind: "clip", art: dogsDressed, phone: [40, 262, 27, -2], wide: [29, 103, 14, -2] },
 ];
 
 // How wide each piece is drawn (the table's width is set in site.css), wide screens first, so phones
 // fetch only the pixels they show.
-const sizes = ({ phone, wide }: (typeof pieces)[number]) => {
+const sizes = ({ phone, wide }: { phone?: Spot; wide: Spot }) => {
   const share = wide[2] / WIDE.width;
-  return `(min-aspect-ratio: 5/4) min(${(share * 96).toFixed(1)}vw, ${(share * 1500).toFixed(0)}px, ${((wide[2] / WIDE.height) * 86).toFixed(1)}vh), ${(phone[2] * 0.92).toFixed(1)}vw`;
+  return `(min-aspect-ratio: 5/4) min(${(share * 96).toFixed(1)}vw, ${(share * 1400).toFixed(0)}px), ${((phone ?? wide)[2] * 0.92).toFixed(1)}vw`;
 };
-const place = ({ phone, wide }: (typeof pieces)[number], i: number) => ({
+const place = ({ phone = [0, 0, 0, 0], wide }: { phone?: Spot; wide: Spot }, i: number) => ({
   "--i": i,
   "--px": phone[0] / PHONE.width, "--py": phone[1] / PHONE.height, "--pw": phone[2] / PHONE.width, "--pt": `${phone[3]}deg`,
   "--wx": wide[0] / WIDE.width, "--wy": wide[1] / WIDE.height, "--ww": wide[2] / WIDE.width, "--wt": `${wide[3]}deg`,
@@ -59,6 +88,10 @@ const coversLatin = (range: string) => range.split(",").some(part => {
   return parseInt(from.replace(/\?/g, "0"), 16) <= 0x61 && 0x61 <= parseInt(to.replace(/\?/g, "f"), 16);
 });
 const fetchFonts = () => document.fonts.forEach(face => { if (coversLatin(face.unicodeRange)) face.load().catch(() => {}); });
+
+// A tap on the envelope before the page's script has loaded is noted by a little script in the layout,
+// and the envelope opens as soon as it can.
+declare global { interface Window { envelopeTapped?: boolean } }
 
 // Which page is open lives in the address (/#rsvp), so the back button closes it and a link can open it.
 const isPage = (id: string): id is PageId => pieces.some(piece => piece.id === id);
@@ -143,8 +176,9 @@ function growFromEnvelope(fx: HTMLDivElement, box: HTMLElement, body: HTMLElemen
   };
 }
 
-// The whole site, over polaroids of the two of them drifting behind everything. First the painted envelope;
-// tapping it washes the screen to white, which clears onto the painted pieces that settle into place one after another. Each piece opens
+// The whole site. First the painted envelope over polaroids of the two of them; tapping it washes the
+// screen to white, which clears onto clean paper and the painted pieces settling into place one after
+// another. Each piece opens
 // its page: a sheet of paper that grows out of the piece, with a lace-edged button that shrinks it back.
 // The RSVP opens differently: an envelope comes up from the piece, opens, and the reply card slides out
 // and grows into the page.
@@ -182,7 +216,7 @@ export default function Invitation({ children }: { children: ReactNode }) {
   });
 
   const openEnvelope = () => {
-    if (stage !== "envelope") return;
+    if (stage !== "envelope" || timer.current) return; // already opening
     if (reducedMotion()) return setStage("table");
     setStage("opening");
     setVeil("in");
@@ -192,6 +226,15 @@ export default function Invitation({ children }: { children: ReactNode }) {
       requestAnimationFrame(() => requestAnimationFrame(() => setVeil("out")));
     }, WASH_IN);
   };
+
+  // A tap on the envelope that came before the page was ready opens it now.
+  const openIfTapped = useEffectEvent(() => {
+    if (window.envelopeTapped) openEnvelope();
+  });
+  useEffect(() => {
+    const frame = requestAnimationFrame(openIfTapped);
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   const openPage = (event: MouseEvent, id: PageId) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -277,7 +320,7 @@ export default function Invitation({ children }: { children: ReactNode }) {
   return (
     <>
       <div className="backdrop">
-        <Polaroids />
+        {stage !== "table" && <Polaroids />}
       </div>
 
       {stage !== "table" && (
@@ -288,7 +331,8 @@ export default function Invitation({ children }: { children: ReactNode }) {
         </section>
       )}
 
-      <main className="table" data-arrived={stage === "table" || undefined} inert={stage !== "table" || !!shown}>
+      {/* The pieces come back to life as soon as a page starts shrinking away, so a tap then opens the next. */}
+      <main className="table" data-arrived={stage === "table" || undefined} inert={stage !== "table" || (!!shown && !leaving)}>
         <nav className="pieces" aria-label="The invitation">
           {pieces.map((piece, i) => (
             <a
@@ -302,6 +346,22 @@ export default function Invitation({ children }: { children: ReactNode }) {
             >
               {(warm || stage === "table") && <Image src={piece.art} alt="" sizes={sizes(piece)} draggable={false} />}
             </a>
+          ))}
+          {decor.map((item, i) => (
+            <span
+              key={i}
+              className={`decor decor-${item.kind}${item.kind === "photo" ? ` decor-${item.hold}` : ""}${item.phone ? "" : " decor-wide"}`}
+              style={{ ...place(item, i), "--tape": `${((i * 7) % 11) - 5}deg`, aspectRatio: item.kind === "clip" ? `${item.art.width} / ${item.art.height}` : undefined } as CSSProperties}
+              aria-hidden="true"
+            >
+              {(warm || stage === "table") && item.kind === "clip" && <Image src={item.art} alt="" sizes={sizes(item)} draggable={false} />}
+              {(warm || stage === "table") && item.kind === "photo" && <Image src={couplePhotos[item.photo].src} alt="" sizes={sizes(item)} draggable={false} />}
+              {item.kind === "photo" && <span className="script">{item.caption}</span>}
+              {item.kind === "note" && <span className="script">{item.text}</span>}
+              {item.kind === "heart" && (
+                <svg viewBox="0 0 100 92"><path d="M52 86C30 70 6 52 9 30 11 13 30 6 43 18 47 22 49 27 50 31 52 19 62 8 77 9 94 11 98 31 89 47 81 61 66 73 49 84 46 86 44 87 41 85" /></svg>
+              )}
+            </span>
           ))}
         </nav>
       </main>

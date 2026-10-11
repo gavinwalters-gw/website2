@@ -15,8 +15,8 @@ const scatter = [
   { photo: 1, x: 88, y: 38, tilt: 15 },
 ];
 
-// The two of them as polaroids scattered behind the envelope, the pieces and the pages, out of focus and
-// still, so they're there without pulling the eye from what's in front.
+// The two of them as polaroids scattered behind the envelope, out of focus and still, so they're there
+// without pulling the eye from it. They go once the envelope is opened.
 export default function Polaroids() {
   return (
     <div className="polaroids" aria-hidden="true">
