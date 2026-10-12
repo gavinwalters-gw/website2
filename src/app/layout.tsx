@@ -21,7 +21,7 @@ const script = localFont({ src: "./fonts/pinyon-script.woff2", variable: "--font
 const display = localFont({ src: "./fonts/calgary.woff2", variable: "--font-display", adjustFontFallback: "Times New Roman", preload: false });
 
 export const metadata: Metadata = {
-  title: "Gavin & Ally | The Wedding",
+  title: "Walters Wedding",
   description: "A little envelope. A lifetime of love. Open your invitation to Gavin & Ally’s wedding.",
 };
 
