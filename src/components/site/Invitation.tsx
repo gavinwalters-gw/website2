@@ -3,15 +3,15 @@
 import Image, { type StaticImageData } from "next/image";
 import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import invitation from "@/content/gate/invitation.webp";
-import saveTheDate from "@/content/collage/save-the-date.webp";
-import details from "@/content/collage/details.webp";
-import travel from "@/content/collage/travel.webp";
-import rsvp from "@/content/collage/rsvp.webp";
-import photos from "@/content/collage/photos.webp";
-import party from "@/content/collage/wedding-party.webp";
-import faq from "@/content/collage/faq.webp";
-import thingsToDo from "@/content/collage/things-to-do.webp";
-import registry from "@/content/collage/registry.webp";
+import saveTheDate from "@/content/buttons/save-the-date.webp";
+import details from "@/content/buttons/details.webp";
+import travel from "@/content/buttons/travel.webp";
+import rsvp from "@/content/buttons/rsvp.webp";
+import photos from "@/content/buttons/photos.webp";
+import party from "@/content/buttons/wedding-party.webp";
+import faq from "@/content/buttons/faq.webp";
+import thingsToDo from "@/content/buttons/things-to-do.webp";
+import registry from "@/content/buttons/registry.webp";
 import dogsDressed from "@/content/clipart/dogs-dressed.webp";
 import lily from "@/content/clipart/floral-lily.webp";
 import cosmos from "@/content/clipart/floral-cosmos.webp";
@@ -54,24 +54,24 @@ const WIDE = BOARD.wide;
 
 const title: { phone: Spot; wide: Spot } = { phone: [0.3, 1, 100, 0], wide: [0, 2.6, 160, 0] };
 // The strip under the title: the photos glide slowly through it, round and round, and it can be swiped.
-// It's this many times as wide as it is tall.
+// It's this many times as wide as it is tall (the same as .banner in site.css), a little taller on phones.
 const banner: { phone: Spot; wide: Spot; photos: StaticImageData[] } = {
-  phone: [3.2, 15.6, 94, 0], wide: [6.6, 13.2, 148.5, 0],
+  phone: [1, 15.6, 98, 0], wide: [4, 12.6, 152, 0],
   photos: [romeSteps, silo, cruwood, proposal, romeStepsSitting, redbudWalk, withTheDog],
 };
-const BANNER_RATIO = 148.5 / 38.4;
+const BANNER_RATIO = { phone: 3.2, wide: 148.5 / 38.4 };
 
 // The pieces on the page, in reading order (the order they drop in and are tabbed through).
 const pieces: { id: PageId; art: StaticImageData; label: string; phone: Spot; wide: Spot }[] = [
-  { id: "date", art: saveTheDate, label: "Save the date: June 13, 2027 in Grand Blanc", phone: [11.8, 47, 75.4, 0], wide: [49.3, 52.8, 59, 0] },
-  { id: "details", art: details, label: "The details", phone: [5.5, 113.6, 39, -2], wide: [17.2, 105.4, 29, 0] },
-  { id: "rsvp", art: rsvp, label: "Kindly RSVP", phone: [51.4, 182.7, 44.8, 2], wide: [66, 119.2, 32.3, 0] },
-  { id: "faq", art: faq, label: "Questions and answers", phone: [-1.2, 242.9, 50.2, 0], wide: [111.2, 114, 34, 0] },
-  { id: "travel", art: travel, label: "Travel and accommodations", phone: [46.1, 302.4, 50.2, 0], wide: [28.7, 172, 31.7, 0] },
-  { id: "party", art: party, label: "The wedding party", phone: [1.5, 357.9, 35.9, -2], wide: [108, 164.5, 25.7, 2] },
-  { id: "registry", art: registry, label: "Registry", phone: [40.7, 429.6, 57.1, 0], wide: [16.5, 221, 45.5, 0] },
-  { id: "photos", art: photos, label: "Photos", phone: [22.2, 491.3, 54, 0], wide: [110.5, 222.6, 35.6, 0] },
-  { id: "todo", art: thingsToDo, label: "Things to do nearby", phone: [1.5, 576.4, 57.7, 0], wide: [69.9, 247.9, 38, 0] },
+  { id: "date", art: saveTheDate, label: "Save the date: June 13, 2027 in Grand Blanc", phone: [14.5, 45.9, 69.9, 0], wide: [53.5, 52.8, 50.6, 0] },
+  { id: "details", art: details, label: "The details", phone: [5.6, 112.8, 38.2, -2], wide: [18, 105.4, 27.4, 0] },
+  { id: "rsvp", art: rsvp, label: "Kindly RSVP", phone: [51.6, 182.4, 45.1, 2], wide: [66.2, 119.2, 31.9, 0] },
+  { id: "faq", art: faq, label: "Questions and answers", phone: [-0.4, 243.1, 49.1, 0], wide: [111.6, 114, 33.3, 0] },
+  { id: "travel", art: travel, label: "Travel and accommodations", phone: [46.6, 301.9, 49.1, 0], wide: [29.3, 172, 30.5, 0] },
+  { id: "party", art: party, label: "The wedding party", phone: [2.3, 358, 34.4, -2], wide: [108.7, 164.5, 24.4, 2] },
+  { id: "registry", art: registry, label: "Registry", phone: [39.9, 431.1, 58.6, 0], wide: [16.5, 222.4, 45.5, 0] },
+  { id: "photos", art: photos, label: "Photos", phone: [22.7, 491.8, 53.5, 0], wide: [110.5, 222.7, 35.6, 0] },
+  { id: "todo", art: thingsToDo, label: "Things to do nearby", phone: [-9.1, 567.7, 79.5, 0], wide: [69.9, 251.6, 38, 0] },
 ];
 
 // Clip art scattered between the pieces, just for looks.
@@ -91,7 +91,7 @@ const clips: { key: string; art: StaticImageData; phone: Spot; wide: Spot }[] = 
 // Date), each photo cropped to its own shape (width / height) around what matters in it.
 const snaps: { key: string; photo: StaticImageData; ratio: number; focus?: string; phone: Spot; wide: Spot }[] = [
   { key: "rome-terrace", photo: romeTerrace, ratio: 75 / 80, focus: "60% 64%", phone: [57.4, 128.8, 30, 4], wide: [129.7, 82, 24.8, 4] },
-  { key: "tulip-kiss", photo: tulipKiss, ratio: 64 / 60, focus: "52% 48%", phone: [6.3, 183.2, 34.3, -4], wide: [7, 147, 21.1, -4] },
+  { key: "tulip-kiss", photo: tulipKiss, ratio: 64 / 60, focus: "52% 48%", phone: [6.3, 183.2, 34.3, -4], wide: [7, 158, 21.1, -4] },
   { key: "ring", photo: ringPhoto, ratio: 73 / 67, phone: [50.9, 364.6, 46.7, 3], wide: [74.3, 207, 24, 3] },
   { key: "riverfront", photo: riverfront, ratio: 81 / 76, focus: "56% 40%", phone: [4.1, 448.5, 32.8, 3], wide: [6.6, 256.3, 26.7, -3] },
   { key: "rome-garden", photo: romeGarden, ratio: 78 / 70, phone: [60.7, 541.8, 39.3, -4], wide: [125.4, 270, 25.7, 4] },
@@ -105,6 +105,12 @@ const things: Record<string, Spots> = {
   ...Object.fromEntries(snaps.map(snap => [snap.key, snap])),
   ...Object.fromEntries(clips.map(clip => [clip.key, clip])),
 };
+// The order things arrive in when the envelope opens, top to bottom, for phones and wide screens.
+const arrival = (layout: Layout) => new Map(
+  Object.entries(things).sort(([, a], [, b]) => a[layout][1] - b[layout][1]).map(([key], rank) => [key, rank]),
+);
+const ARRIVAL = { phone: arrival("phone"), wide: arrival("wide") };
+const LAST = Object.keys(things).length;
 // Where a thing lies once it's been dragged (keeping its tilt), for phones and wide screens.
 const arrangedSpots = (key: string, arranged: Arranged): Spots => {
   const { phone, wide } = things[key];
@@ -127,8 +133,8 @@ const sizes = ({ phone, wide }: Spots) => {
   const share = wide[2] / WIDE.width;
   return `(min-aspect-ratio: 5/4) min(${(share * 96).toFixed(1)}vw, ${(share * 1400).toFixed(0)}px), ${(phone[2] * 0.96).toFixed(1)}vw`;
 };
-const place = ({ phone, wide }: Spots, i: number) => ({
-  "--i": i,
+const place = (key: string, { phone, wide }: Spots, i: number) => ({
+  "--i": i, "--pr": ARRIVAL.phone.get(key), "--wr": ARRIVAL.wide.get(key),
   "--px": phone[0] / PHONE.width, "--py": phone[1] / PHONE.height, "--pw": phone[2] / PHONE.width, "--pt": `${phone[3]}deg`,
   "--wx": wide[0] / WIDE.width, "--wy": wide[1] / WIDE.height, "--ww": wide[2] / WIDE.width, "--wt": `${wide[3]}deg`,
 }) as CSSProperties;
@@ -314,7 +320,8 @@ export default function Invitation({ children }: { children: ReactNode }) {
 
   // The photo strip glides along by itself, and the guest can swipe it too. It holds the photos twice, so
   // on reaching the second set it steps back one set, which looks the same. It waits while a finger is on
-  // it, for a moment after it's been moved by hand, and while a page covers it. Phones get a quicker
+  // it, for a moment after it's been swiped, and while a page covers it; scrolling the page or tapping
+  // elsewhere doesn't stop it. Phones get a quicker
   // pace than its size alone would give, or the strip would seem to stand still.
   useEffect(() => {
     const box = strip.current;
@@ -326,7 +333,7 @@ export default function Invitation({ children }: { children: ReactNode }) {
       const elapsed = Math.min(now - (then || now), 50);
       then = now;
       if (held || now < restUntil || sheet.current?.hidden === false) return;
-      at += Math.max(30, box.clientHeight / 7.7) * elapsed / 1000;
+      at += Math.max(22, box.clientHeight / 10) * elapsed / 1000;
       if (at >= box.scrollWidth / 2) at -= box.scrollWidth / 2;
       box.scrollLeft = Math.round(at);
     };
@@ -338,7 +345,7 @@ export default function Invitation({ children }: { children: ReactNode }) {
       rest();
     };
     const hold = () => { held = true; };
-    const letGo = () => { held = false; rest(); };
+    const letGo = () => { held = false; };
     box.addEventListener("scroll", scrolled, { passive: true });
     box.addEventListener("pointerdown", hold);
     window.addEventListener("pointerup", letGo);
@@ -451,20 +458,20 @@ export default function Invitation({ children }: { children: ReactNode }) {
       {/* The pieces come back to life as soon as a page starts shrinking away, so a tap then opens the next. */}
       <main className="table" data-arrived={stage === "table" || undefined} inert={stage !== "table" || (!!shown && !leaving)}>
         <nav ref={board} className="pieces" aria-label="The invitation">
-          <p className="board-title" data-spot="title" style={place(spotsOf("title"), 0)} aria-hidden="true">Walters Wedding</p>
-          <div ref={strip} className="banner" data-spot="banner" style={place(spotsOf("banner"), 0)} aria-hidden="true">
+          <p className="board-title" data-spot="title" style={place("title", spotsOf("title"), 0)} aria-hidden="true">Walters Wedding</p>
+          <div ref={strip} className="banner" data-spot="banner" style={place("banner", spotsOf("banner"), 0)} aria-hidden="true">
             {/* The photos twice over, so the strip can slide by one set and start again without a seam.
                 They're all fetched while the envelope is up, not as each slides into view, and show
                 blurred until they arrive. */}
             <div className="banner-track">
               {(warm || stage === "table") && [0, 1].flatMap(round => banner.photos.map(photo => {
-                const share = photo.width / photo.height / BANNER_RATIO;
+                const share = photo.width / photo.height;
                 return (
                   <Image
                     key={`${round}-${photo.src}`}
                     src={photo}
                     alt=""
-                    sizes={sizes({ phone: [0, 0, spotsOf("banner").phone[2] * share, 0], wide: [0, 0, spotsOf("banner").wide[2] * share, 0] })}
+                    sizes={sizes({ phone: [0, 0, spotsOf("banner").phone[2] * share / BANNER_RATIO.phone, 0], wide: [0, 0, spotsOf("banner").wide[2] * share / BANNER_RATIO.wide, 0] })}
                     loading="eager"
                     placeholder="blur"
                     draggable={false}
@@ -480,7 +487,7 @@ export default function Invitation({ children }: { children: ReactNode }) {
               href={`#${piece.id}`}
               className={`piece piece-${piece.id}`}
               data-spot={piece.id}
-              style={{ ...place(spotsOf(piece.id), i), aspectRatio: `${piece.art.width} / ${piece.art.height}` }}
+              style={{ ...place(piece.id, spotsOf(piece.id), i), aspectRatio: `${piece.art.width} / ${piece.art.height}` }}
               aria-label={piece.label}
               onClick={event => openPage(event, piece.id)}
             >
@@ -488,7 +495,7 @@ export default function Invitation({ children }: { children: ReactNode }) {
             </a>
           ))}
           {snaps.map((snap, i) => (
-            <span key={snap.key} className="decor snap" data-spot={snap.key} style={place(spotsOf(snap.key), i)} aria-hidden="true">
+            <span key={snap.key} className="decor snap" data-spot={snap.key} style={place(snap.key, spotsOf(snap.key), i)} aria-hidden="true">
               {(warm || stage === "table") && <Image src={snap.photo} alt="" style={{ aspectRatio: snap.ratio, objectPosition: snap.focus }} sizes={sizes(spotsOf(snap.key))} draggable={false} />}
             </span>
           ))}
@@ -497,14 +504,14 @@ export default function Invitation({ children }: { children: ReactNode }) {
               key={clip.key}
               className="decor"
               data-spot={clip.key}
-              style={{ ...place(spotsOf(clip.key), i), aspectRatio: `${clip.art.width} / ${clip.art.height}` }}
+              style={{ ...place(clip.key, spotsOf(clip.key), i), aspectRatio: `${clip.art.width} / ${clip.art.height}` }}
               aria-hidden="true"
             >
               {(warm || stage === "table") && <Image src={clip.art} alt="" sizes={sizes(spotsOf(clip.key))} draggable={false} />}
             </span>
           ))}
         </nav>
-        <footer className="send-off">
+        <footer className="send-off" style={{ "--r": LAST } as CSSProperties}>
           <p>{guestMessage.text}<span className="send-off-from">{guestMessage.from}</span></p>
           {(warm || stage === "table") && <Image src={dogsDressed} alt="" sizes="180px" draggable={false} />}
         </footer>

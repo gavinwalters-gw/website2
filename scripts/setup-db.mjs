@@ -30,8 +30,9 @@ await sql`create table if not exists questions (
 )`;
 
 // Where things on the board have been dragged to and how big they've been made, one row for phones and
-// one for wide screens. Anything not in here lies where Invitation.tsx puts it.
-await sql`create table if not exists board_layout (
+// one for wide screens. Anything not in here lies where Invitation.tsx puts it. (board_layout, if it's
+// there, is an older arrangement that's no longer read.)
+await sql`create table if not exists board_arrangement (
   layout text primary key check (layout in ('phone', 'wide')),
   spots jsonb not null default '{}',
   updated_at timestamptz not null default now()
@@ -43,4 +44,4 @@ await sql`create or replace view rsvp_guests as
          reply->>'plusOneOf' as plus_one_of, r.email, r.dietary, r.received_at
   from rsvps r, jsonb_array_elements(r.replies) reply`;
 
-console.log("Tables ready: rsvps, questions, board_layout, and the rsvp_guests view.");
+console.log("Tables ready: rsvps, questions, board_arrangement, and the rsvp_guests view.");

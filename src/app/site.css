@@ -82,15 +82,15 @@ html:has(.gate) { overflow: hidden; }
 /* The board: a title and a strip of photos, then the painted pieces scattered down the paper, a little
    askew, none covering another, with photos and clip art between them. Invitation.tsx says where each lies: left,
    top and width as a share of the page, for phones and for wide screens. The page is taller than the
-   screen and scrolls. When the envelope opens the pieces drop onto it one after another as the white
-   clears, and the rest fades in after. A note to the guests on white paper finishes it. */
+   screen and scrolls. When the envelope opens everything arrives top to bottom as the white clears,
+   the title and the photo strip first, the pieces dropping in and the rest fading in. A note to the guests on white paper finishes it. */
 .table { position: relative; z-index: 1; display: grid; place-items: center; min-height: 100svh; padding: max(16px, env(safe-area-inset-top)) var(--gutter) 0; overflow: hidden; pointer-events: none; }
 .table:not([data-arrived]) { visibility: hidden; } /* the envelope has the screen to itself until it's opened */
 .pieces { position: relative; width: min(100%, 560px); aspect-ratio: 100 / 672; container-type: inline-size; }
 /* Phones give the board nearly all their width, so the pieces can be drawn bigger. */
 @media not (min-aspect-ratio: 5/4) { .table { --gutter: max(8px, env(safe-area-inset-left), env(safe-area-inset-right)); } }
 .piece, .decor {
-  --x: var(--px); --y: var(--py); --w: var(--pw); --tilt: var(--pt); --spin: -7deg;
+  --x: var(--px); --y: var(--py); --w: var(--pw); --tilt: var(--pt); --r: var(--pr); --spin: -7deg;
   position: absolute; left: calc(var(--x) * 100%); top: calc(var(--y) * 100%); width: calc(var(--w) * 100%);
   display: block; transform: rotate(var(--tilt)); pointer-events: auto;
   filter: drop-shadow(0 10px 14px #3c2d1e33) drop-shadow(0 2px 3px #3c2d1e1f);
@@ -105,9 +105,9 @@ html:has(.gate) { overflow: hidden; }
 .snap:nth-of-type(even)::before { background: #ebc2bcd9; transform: rotate(4deg); }
 .decor.snap img { object-fit: cover; animation: none; }
 /* The title at the top, and the strip of photos under it. */
-.board-title, .banner { --x: var(--px); --y: var(--py); --w: var(--pw); }
+.board-title, .banner { --x: var(--px); --y: var(--py); --w: var(--pw); --r: var(--pr); }
 .board-title { position: absolute; left: calc(var(--x) * 100%); top: calc(var(--y) * 100%); width: calc(var(--w) * 100%); margin: 0; font: 400 calc(var(--w) * 10.5cqi)/1.15 var(--font-script), "Snell Roundhand", "Apple Chancery", cursive; text-align: center; color: var(--ink); }
-.banner { position: absolute; left: calc(var(--x) * 100%); top: calc(var(--y) * 100%); width: calc(var(--w) * 100%); aspect-ratio: 148.5 / 38.4; display: flex; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; pointer-events: auto; border: 1px solid #5b5249; box-shadow: 0 10px 22px -14px #3c2d1e66; }
+.banner { position: absolute; left: calc(var(--x) * 100%); top: calc(var(--y) * 100%); width: calc(var(--w) * 100%); aspect-ratio: 3.2; display: flex; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; pointer-events: auto; border: 1px solid #5b5249; box-shadow: 0 10px 22px -14px #3c2d1e66; }
 .banner::-webkit-scrollbar { display: none; }
 .banner-track { display: flex; width: max-content; height: 100%; }
 .banner img { flex: none; width: auto; height: 100%; user-select: none; -webkit-user-drag: none; }
@@ -127,7 +127,8 @@ html:has(.sheet:not([hidden])) :is(.piece img, .decor img) { animation-play-stat
 @media (min-aspect-ratio: 5/4) {
   .pieces { width: min(100%, 1400px); aspect-ratio: 160 / 311; }
   .board-title { font-size: calc(var(--w) * 4.6cqi); }
-  .piece, .decor, .board-title, .banner { --x: var(--wx); --y: var(--wy); --w: var(--ww); --tilt: var(--wt); }
+  .banner { aspect-ratio: 148.5 / 38.4; }
+  .piece, .decor, .board-title, .banner { --x: var(--wx); --y: var(--wy); --w: var(--ww); --tilt: var(--wt); --r: var(--wr); }
 }
 @media (hover: hover) {
   .piece:hover { transform: translateY(-10px) rotate(calc(var(--tilt) * .4)) scale(1.03); filter: drop-shadow(0 26px 24px #3c2d1e38) drop-shadow(0 4px 6px #3c2d1e1a); }
@@ -145,12 +146,12 @@ html:has(.sheet:not([hidden])) :is(.piece img, .decor img) { animation-play-stat
 .send-off img { width: 160px; height: auto; user-select: none; -webkit-user-drag: none; }
 /* Dropped onto the table: each piece falls in from a little higher, turned a little further, and
    settles with a small overshoot. */
-.table[data-arrived] .piece { animation: piece-in 1s var(--spring) backwards; animation-delay: calc(.2s + var(--i) * .12s); }
+.table[data-arrived] .piece { animation: piece-in 1s var(--spring) backwards; animation-delay: calc(.15s + var(--r) * .1s); }
 @keyframes piece-in {
   from { opacity: 0; transform: translateY(46px) rotate(calc(var(--tilt) + var(--spin))) scale(.9); }
   40% { opacity: 1; }
 }
-.table[data-arrived] :is(.decor, .board-title, .banner, .send-off) { animation: decor-in 1.2s var(--ease) backwards; animation-delay: calc(1.1s + var(--i) * .08s); }
+.table[data-arrived] :is(.decor, .board-title, .banner, .send-off) { animation: decor-in 1.2s var(--ease) backwards; animation-delay: calc(.15s + var(--r) * .1s); }
 @keyframes decor-in { from { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .table[data-arrived] :is(.piece, .decor) { animation: none; } }
 

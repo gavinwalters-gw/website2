@@ -4,13 +4,23 @@ import { sql } from "@/server/db";
 import { ARRANGING, keepOnBoard, type Arranged, type Layout, type Place } from "./boardSize";
 
 // Where things on the board have been dragged to and how big they've been made. It's one layout that
-// everyone sees, kept in Postgres (the board_layout table); anything not in it lies where Invitation.tsx
-// puts it.
+// everyone sees, kept in Postgres (the board_arrangement table); anything not in it lies where
+// Invitation.tsx puts it. (board_layout holds an older arrangement, from before the new buttons.)
+
+// The table is made the first time it's needed, so a database that's never had scripts/setup-db.mjs run
+// against it still works.
+let ready: Promise<unknown> | null = null;
+const table = () => (ready ??= sql!`create table if not exists board_arrangement (
+  layout text primary key check (layout in ('phone', 'wide')),
+  spots jsonb not null default '{}',
+  updated_at timestamptz not null default now()
+)`.catch(error => { ready = null; throw error; }));
 
 export async function getLayout(): Promise<Arranged> {
   const arranged: Arranged = { phone: {}, wide: {} };
   if (!sql) return arranged;
-  for (const row of await sql`select layout, spots from board_layout`) arranged[row.layout as Layout] = row.spots;
+  await table();
+  for (const row of await sql`select layout, spots from board_arrangement`) arranged[row.layout as Layout] = row.spots;
   return arranged;
 }
 
@@ -19,10 +29,11 @@ export async function placeOnBoard(layout: Layout, key: string, place: Place): P
   if (!ARRANGING || !sql || (layout !== "phone" && layout !== "wide") || !/^[a-z0-9-]{1,40}$/.test(key)) return false;
   if (!Array.isArray(place) || place.length !== 3 || !place.every(Number.isFinite)) return false;
   const spot = JSON.stringify({ [key]: keepOnBoard(place, layout) });
+  await table();
   const rows = await sql`
-    insert into board_layout (layout, spots) values (${layout}, ${spot}::jsonb)
-    on conflict (layout) do update set spots = board_layout.spots || excluded.spots, updated_at = now()
-      where board_layout.spots ? ${key} or (select count(*) from jsonb_object_keys(board_layout.spots)) < 60
+    insert into board_arrangement (layout, spots) values (${layout}, ${spot}::jsonb)
+    on conflict (layout) do update set spots = board_arrangement.spots || excluded.spots, updated_at = now()
+      where board_arrangement.spots ? ${key} or (select count(*) from jsonb_object_keys(board_arrangement.spots)) < 60
     returning layout`;
   return rows.length > 0;
 }

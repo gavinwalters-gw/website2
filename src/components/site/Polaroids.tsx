@@ -3,16 +3,16 @@ import type { CSSProperties } from "react";
 import { photos } from "@/content/wedding";
 
 // Where each polaroid lies behind everything (left and top, as a share of the screen) and how askew it
-// is. Phones show the first six.
+// is, each a different photo. Phones show the first six.
 const scatter = [
   { photo: 0, x: 2, y: 5, tilt: -14 },
   { photo: 3, x: 74, y: 3, tilt: 11 },
   { photo: 1, x: 40, y: -6, tilt: -7 },
   { photo: 4, x: 66, y: 66, tilt: -12 },
   { photo: 2, x: -4, y: 60, tilt: 13 },
-  { photo: 0, x: 30, y: 78, tilt: 8 },
-  { photo: 4, x: 20, y: 30, tilt: -10 },
-  { photo: 1, x: 88, y: 38, tilt: 15 },
+  { photo: 9, x: 30, y: 78, tilt: 8 },
+  { photo: 11, x: 20, y: 30, tilt: -10 },
+  { photo: 7, x: 88, y: 38, tilt: 15 },
 ];
 
 // The two of them as polaroids scattered behind the envelope, out of focus and still, so they're there
