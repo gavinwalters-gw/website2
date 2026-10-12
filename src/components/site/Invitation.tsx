@@ -52,49 +52,49 @@ type Spot = [x: number, y: number, width: number, tilt: number];
 const PHONE = BOARD.phone;
 const WIDE = BOARD.wide;
 
-const title: { phone: Spot; wide: Spot } = { phone: [0, 1.8, 100, 0], wide: [0, 2.6, 160, 0] };
+const title: { phone: Spot; wide: Spot } = { phone: [0.3, 1, 100, 0], wide: [0, 2.6, 160, 0] };
 // The strip under the title: the photos glide slowly through it, round and round, and it can be swiped.
 // It's this many times as wide as it is tall.
 const banner: { phone: Spot; wide: Spot; photos: StaticImageData[] } = {
-  phone: [3, 14, 94, 0], wide: [6.6, 13.2, 148.5, 0],
+  phone: [3.2, 15.6, 94, 0], wide: [6.6, 13.2, 148.5, 0],
   photos: [romeSteps, silo, cruwood, proposal, romeStepsSitting, redbudWalk, withTheDog],
 };
 const BANNER_RATIO = 148.5 / 38.4;
 
 // The pieces on the page, in reading order (the order they drop in and are tabbed through).
 const pieces: { id: PageId; art: StaticImageData; label: string; phone: Spot; wide: Spot }[] = [
-  { id: "date", art: saveTheDate, label: "Save the date: June 13, 2027 in Grand Blanc", phone: [8, 46, 84, 0], wide: [49.3, 52.8, 59, 0] },
-  { id: "details", art: details, label: "The details", phone: [4, 126, 50, -2], wide: [17.2, 105.4, 29, 0] },
-  { id: "rsvp", art: rsvp, label: "Kindly RSVP", phone: [46, 205, 48, 2], wide: [66, 119.2, 32.3, 0] },
-  { id: "faq", art: faq, label: "Questions and answers", phone: [4, 290, 58, 0], wide: [111.2, 114, 34, 0] },
-  { id: "travel", art: travel, label: "Travel and accommodations", phone: [36, 352, 60, 0], wide: [28.7, 172, 31.7, 0] },
-  { id: "party", art: party, label: "The wedding party", phone: [6, 415, 42, -2], wide: [108, 164.5, 25.7, 2] },
-  { id: "registry", art: registry, label: "Registry", phone: [36, 481, 60, 0], wide: [16.5, 221, 45.5, 0] },
-  { id: "photos", art: photos, label: "Photos", phone: [4, 534, 54, 0], wide: [110.5, 222.6, 35.6, 0] },
-  { id: "todo", art: thingsToDo, label: "Things to do nearby", phone: [40, 588, 52, 0], wide: [69.3, 248, 38, 0] },
+  { id: "date", art: saveTheDate, label: "Save the date: June 13, 2027 in Grand Blanc", phone: [11.8, 47, 75.4, 0], wide: [49.3, 52.8, 59, 0] },
+  { id: "details", art: details, label: "The details", phone: [5.5, 113.6, 39, -2], wide: [17.2, 105.4, 29, 0] },
+  { id: "rsvp", art: rsvp, label: "Kindly RSVP", phone: [51.4, 182.7, 44.8, 2], wide: [66, 119.2, 32.3, 0] },
+  { id: "faq", art: faq, label: "Questions and answers", phone: [-1.2, 242.9, 50.2, 0], wide: [111.2, 114, 34, 0] },
+  { id: "travel", art: travel, label: "Travel and accommodations", phone: [46.1, 302.4, 50.2, 0], wide: [28.7, 172, 31.7, 0] },
+  { id: "party", art: party, label: "The wedding party", phone: [1.5, 357.9, 35.9, -2], wide: [108, 164.5, 25.7, 2] },
+  { id: "registry", art: registry, label: "Registry", phone: [40.7, 429.6, 57.1, 0], wide: [16.5, 221, 45.5, 0] },
+  { id: "photos", art: photos, label: "Photos", phone: [22.2, 491.3, 54, 0], wide: [110.5, 222.6, 35.6, 0] },
+  { id: "todo", art: thingsToDo, label: "Things to do nearby", phone: [1.5, 576.4, 57.7, 0], wide: [69.9, 247.9, 38, 0] },
 ];
 
 // Clip art scattered between the pieces, just for looks.
 const clips: { key: string; art: StaticImageData; phone: Spot; wide: Spot }[] = [
-  { key: "doves", art: doves, phone: [4, 368, 18, 0], wide: [5.6, 56.4, 20.8, 0] },
-  { key: "lily", art: lily, phone: [70, 182, 12, 0], wide: [28, 78, 21.5, 0] },
-  { key: "stem", art: stem, phone: [80, 300, 10, 0], wide: [122, 57, 13, 0] },
-  { key: "cosmos", art: cosmos, phone: [84, 462, 7, 0], wide: [52.8, 108, 10.5, 0] },
-  { key: "greenery", art: greenery, phone: [6, 490, 16, 0], wide: [133, 146, 20, 0] },
+  { key: "doves", art: doves, phone: [5.4, 307.3, 25.9, 0], wide: [5.6, 56.4, 20.8, 0] },
+  { key: "lily", art: lily, phone: [85, 157.2, 12, 0], wide: [28, 78, 21.5, 0] },
+  { key: "stem", art: stem, phone: [58.5, 262.4, 24.2, 0], wide: [122, 57, 13, 0] },
+  { key: "cosmos", art: cosmos, phone: [83.1, 493.4, 15.1, 0], wide: [52.8, 108, 10.5, 0] },
+  { key: "greenery", art: greenery, phone: [10.9, 541, 25.7, 0], wide: [133, 146, 20, 0] },
   { key: "bloom", art: bloom, phone: [22, 258, 10, 0], wide: [77, 176, 15, 0] },
   { key: "sprig", art: sprig, phone: [54, 408, 6, 0], wide: [10.9, 195, 9, 0] },
-  { key: "peony", art: peony, phone: [10, 640, 14, 0], wide: [138, 202, 18, 0] },
-  { key: "vase", art: vase, phone: [80, 642, 10, 0], wide: [44.5, 279.4, 16.5, 0] },
+  { key: "peony", art: peony, phone: [69.6, 613.6, 28.2, 0], wide: [138, 202, 18, 0] },
+  { key: "vase", art: vase, phone: [41.8, 643.1, 16.7, 0], wide: [44.5, 279.4, 16.5, 0] },
 ];
 
 // Polaroids of the two of them taped between the pieces (none of them in the strip or on the Save the
 // Date), each photo cropped to its own shape (width / height) around what matters in it.
 const snaps: { key: string; photo: StaticImageData; ratio: number; focus?: string; phone: Spot; wide: Spot }[] = [
-  { key: "rome-terrace", photo: romeTerrace, ratio: 75 / 80, focus: "60% 64%", phone: [62, 140, 30, 4], wide: [129.7, 82, 24.8, 4] },
-  { key: "tulip-kiss", photo: tulipKiss, ratio: 64 / 60, focus: "52% 48%", phone: [8, 220, 30, -4], wide: [7, 147, 21.1, -4] },
-  { key: "ring", photo: ringPhoto, ratio: 73 / 67, phone: [62, 425, 28, 3], wide: [74.3, 207, 24, 3] },
-  { key: "riverfront", photo: riverfront, ratio: 81 / 76, focus: "56% 40%", phone: [66, 540, 28, 3], wide: [6.6, 256.3, 26.7, -3] },
-  { key: "rome-garden", photo: romeGarden, ratio: 78 / 70, phone: [6, 596, 28, -4], wide: [125.4, 270, 25.7, 4] },
+  { key: "rome-terrace", photo: romeTerrace, ratio: 75 / 80, focus: "60% 64%", phone: [57.4, 128.8, 30, 4], wide: [129.7, 82, 24.8, 4] },
+  { key: "tulip-kiss", photo: tulipKiss, ratio: 64 / 60, focus: "52% 48%", phone: [6.3, 183.2, 34.3, -4], wide: [7, 147, 21.1, -4] },
+  { key: "ring", photo: ringPhoto, ratio: 73 / 67, phone: [50.9, 364.6, 46.7, 3], wide: [74.3, 207, 24, 3] },
+  { key: "riverfront", photo: riverfront, ratio: 81 / 76, focus: "56% 40%", phone: [4.1, 448.5, 32.8, 3], wide: [6.6, 256.3, 26.7, -3] },
+  { key: "rome-garden", photo: romeGarden, ratio: 78 / 70, phone: [60.7, 541.8, 39.3, -4], wide: [125.4, 270, 25.7, 4] },
 ];
 
 // Everything on the board by name, which is how where it's been dragged to is saved (boards.ts).
@@ -254,11 +254,12 @@ export default function Invitation({ children }: { children: ReactNode }) {
   const returnTo = useRef<HTMLElement | null>(null);
   const board = useRef<HTMLElement>(null);
 
-  // Where things on the board have been dragged to on the live site, which is the same for everyone.
+  // While the board can be laid out by hand (ARRANGING), where things have been dragged to on the live
+  // site, which is the same for everyone. Otherwise everything lies where it's set out above.
   const [arranged, setArranged] = useState<Arranged>({ phone: {}, wide: {} });
   const layout = useSyncExternalStore<Layout>(watchScreen, screenLayout, () => "phone");
   useEffect(() => {
-    getLayout().then(setArranged).catch(() => {});
+    if (ARRANGING) getLayout().then(setArranged).catch(() => {});
   }, []);
   const spotsOf = (key: string) => arrangedSpots(key, arranged);
   useArrange(board, {

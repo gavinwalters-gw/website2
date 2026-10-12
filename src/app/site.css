@@ -86,7 +86,7 @@ html:has(.gate) { overflow: hidden; }
    clears, and the rest fades in after. A note to the guests on white paper finishes it. */
 .table { position: relative; z-index: 1; display: grid; place-items: center; min-height: 100svh; padding: max(16px, env(safe-area-inset-top)) var(--gutter) 0; overflow: hidden; pointer-events: none; }
 .table:not([data-arrived]) { visibility: hidden; } /* the envelope has the screen to itself until it's opened */
-.pieces { position: relative; width: min(100%, 560px); aspect-ratio: 100 / 660; container-type: inline-size; }
+.pieces { position: relative; width: min(100%, 560px); aspect-ratio: 100 / 672; container-type: inline-size; }
 /* Phones give the board nearly all their width, so the pieces can be drawn bigger. */
 @media not (min-aspect-ratio: 5/4) { .table { --gutter: max(8px, env(safe-area-inset-left), env(safe-area-inset-right)); } }
 .piece, .decor {

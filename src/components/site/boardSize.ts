@@ -1,10 +1,10 @@
 // The board's size in its own units: 100 wide on phones and 160 on wide screens, and taller than the
 // screen on both (see Invitation.tsx). Where things have been dragged to is saved in these units too.
-export const BOARD = { phone: { width: 100, height: 660 }, wide: { width: 160, height: 311 } } as const;
+export const BOARD = { phone: { width: 100, height: 672 }, wide: { width: 160, height: 311 } } as const;
 
 // While this is on, anyone can drag things on the board and pinch them bigger or smaller, and where they
 // end up is saved for everyone (boards.ts). Turn it off once the board is laid out.
-export const ARRANGING = true;
+export const ARRANGING = false;
 
 export type Layout = keyof typeof BOARD;
 // Where a thing lies and how wide it is: left, top and width in the board's units.
