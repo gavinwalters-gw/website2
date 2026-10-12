@@ -1,0 +1,38 @@
+// Creates the tables RSVPs and questions are saved to. Safe to run again; it only adds what's missing.
+//   npm run db:setup
+// To read the replies, open the SQL editor in Neon and run, say, `select * from rsvp_guests;`.
+import { neon } from "@neondatabase/serverless";
+
+if (!process.env.DATABASE_URL) throw new Error("Put DATABASE_URL in .env.local first.");
+const sql = neon(process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL);
+
+await sql`create table if not exists rsvps (
+  id bigserial primary key,
+  received_at timestamptz not null default now(),
+  invitation text not null,
+  email text not null,
+  attending boolean not null,
+  replies jsonb not null,
+  dietary text,
+  song text,
+  note text,
+  photo_name text,
+  photo_type text,
+  photo bytea
+)`;
+
+await sql`create table if not exists questions (
+  id bigserial primary key,
+  received_at timestamptz not null default now(),
+  name text not null,
+  email text not null,
+  question text not null
+)`;
+
+// One row per guest, which is the list to count heads from.
+await sql`create or replace view rsvp_guests as
+  select r.id as rsvp, reply->>'guest' as guest, reply->>'attending' = 'yes' as attending,
+         reply->>'plusOneOf' as plus_one_of, r.email, r.dietary, r.received_at
+  from rsvps r, jsonb_array_elements(r.replies) reply`;
+
+console.log("Tables ready: rsvps, questions, and the rsvp_guests view.");

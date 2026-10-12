@@ -6,6 +6,15 @@ import romeSteps from "./photos/rome-steps.webp";
 import ringPhoto from "./photos/ring.webp";
 import withTheDog from "./photos/with-the-dog.webp";
 import silo from "./photos/silo.webp";
+import proposal from "./photos/proposal.webp";
+import romeStepsSitting from "./photos/rome-steps-sitting.webp";
+import romeStepsStanding from "./photos/rome-steps-standing.webp";
+import romeTerrace from "./photos/rome-terrace.webp";
+import parkWithDog from "./photos/park-with-dog.webp";
+import redbudWalk from "./photos/redbud-walk.webp";
+import redbudLean from "./photos/redbud-lean.webp";
+import tulipKiss from "./photos/tulip-kiss.webp";
+import riverfront from "./photos/riverfront.webp";
 import comfortInn from "./photos/comfort-inn.webp";
 import kait from "./party/kait.webp";
 import madison from "./party/madison.webp";
@@ -48,10 +57,19 @@ export const photos: { src: StaticImageData; alt: string }[] = [
   { src: ringPhoto, alt: "Ally’s hand, wearing the engagement ring, resting on Gavin’s shoulder" },
   { src: withTheDog, alt: "Gavin and Ally sitting on a stone wall with their golden retriever" },
   { src: silo, alt: "Gavin and Ally leaning together against an old concrete silo" },
+  { src: proposal, alt: "Gavin on one knee holding out the ring as Ally covers her face, on a terrace above the rooftops of Rome" },
+  { src: romeStepsSitting, alt: "Gavin and Ally sitting together on the Spanish Steps below the church of Trinità dei Monti" },
+  { src: romeStepsStanding, alt: "Gavin and Ally smiling at the foot of the Spanish Steps" },
+  { src: romeTerrace, alt: "Gavin holding Ally from behind in front of an orange building in Rome" },
+  { src: parkWithDog, alt: "Gavin and Ally sitting on a stone wall under blossoming trees with their golden retriever" },
+  { src: redbudWalk, alt: "Gavin and Ally walking hand in hand along a path under a pink redbud tree" },
+  { src: redbudLean, alt: "Ally leaning her head on Gavin’s arm and smiling under the redbud branches" },
+  { src: tulipKiss, alt: "Gavin and Ally kissing beside a carousel, with tulips in the foreground" },
+  { src: riverfront, alt: "Gavin and Ally holding each other and smiling by the river" },
 ];
 
 // The note to the guests at the foot of the board.
-export const guestMessage = "We can’t wait to celebrate with you. Thank you for being part of our story. With love, Ally & Gavin";
+export const guestMessage = { text: "We can’t wait to celebrate with you. Thank you for being part of our story.", from: "With love, Ally & Gavin" };
 
 export const rsvpDeadline = "May 16, 2027";
 export const contactEmail = "g.a.walterswedding@gmail.com";

@@ -219,7 +219,7 @@ export default function HomeSections() {
       </section>
       <section className="page-section">
         <h3 className="section-title">Still wondering?</h3>
-        <p>Write your question below and it will be emailed to Ally &amp; Gavin.</p>
+        <p>Write your question below and it will go straight to Ally &amp; Gavin.</p>
         <QuestionForm />
       </section>
     </Page>

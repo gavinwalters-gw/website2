@@ -1,14 +1,24 @@
 import type { Metadata, Viewport } from "next";
-import { Newsreader, Pinyon_Script } from "next/font/google";
+import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
 import "./site.css";
 
-// Newsreader carries all the reading; its optical sizes keep body text sturdy and large titles fine.
-// The script is for the page titles, as on the printed card. Neither is preloaded: the first screen has
-// no text, so they'd only slow the envelope down. Invitation fetches them while the envelope is up.
-const serif = Newsreader({ subsets: ["latin"], style: ["normal", "italic"], axes: ["opsz"], variable: "--font-serif", preload: false });
-const script = Pinyon_Script({ subsets: ["latin"], weight: "400", variable: "--font-script", preload: false });
+// Termes (a Times face) carries all the reading, as on the painted pieces' "Click Here". Pinyon Script is
+// for titles, as on the pieces themselves, and Calgary's tall capitals for headings. The files are cut
+// down to Latin. None is preloaded: the first screen has no text, so they'd only slow the envelope down.
+// Invitation fetches them while the envelope is up.
+const serif = localFont({
+  src: [
+    { path: "./fonts/termes-regular.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/termes-italic.woff2", weight: "400", style: "italic" },
+    { path: "./fonts/termes-bold.woff2", weight: "700", style: "normal" },
+    { path: "./fonts/termes-bold-italic.woff2", weight: "700", style: "italic" },
+  ],
+  variable: "--font-serif", adjustFontFallback: "Times New Roman", preload: false,
+});
+const script = localFont({ src: "./fonts/pinyon-script.woff2", variable: "--font-script", adjustFontFallback: false, preload: false });
+const display = localFont({ src: "./fonts/calgary.woff2", variable: "--font-display", adjustFontFallback: "Times New Roman", preload: false });
 
 export const metadata: Metadata = {
   title: "Gavin & Ally | The Wedding",
@@ -24,7 +34,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" data-scroll-behavior="smooth" className={`${serif.variable} ${script.variable}`}>
+    <html lang="en" data-scroll-behavior="smooth" className={`${serif.variable} ${script.variable} ${display.variable}`}>
       <body>
         {children}
         {/* The envelope is painted before the page's own script has loaded, and a tap on it then would be

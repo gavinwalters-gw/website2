@@ -1,24 +1,21 @@
 "use server";
 
+import { sql } from "@/server/db";
 import { personById } from "@/server/guestList";
 
-// Everything guests send (RSVPs and questions) is forwarded as JSON to RSVP_WEBHOOK_URL: the Google
-// Apps Script in scripts/rsvp-webhook.gs, which adds RSVPs to a Google Sheet, saves wedding photos to
-// Drive and emails questions to the couple. RSVP_WEBHOOK_SECRET goes along so the script can ignore
-// anything else. Without a URL, development logs what was sent and production refuses it, so nothing a
-// guest sends is ever silently dropped.
+// Everything guests send (RSVPs and questions) is saved to Postgres (src/server/db.ts; npm run db:setup
+// makes the tables). If RSVP_WEBHOOK_URL is set as well, it also goes as JSON to the Google Apps Script in
+// scripts/rsvp-webhook.gs, which can email the couple; RSVP_WEBHOOK_SECRET goes along so the script can
+// ignore anything else. The database is what counts: a webhook that fails then is only logged. With
+// neither set, development logs what was sent and production refuses it, so nothing a guest sends is
+// ever silently dropped.
+
+type Db = NonNullable<typeof sql>;
 
 const text = (data: FormData, key: string, max = 500) => String(data.get(key) ?? "").trim().slice(0, max);
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-async function forward(payload: Record<string, unknown>) {
-  const endpoint = process.env.RSVP_WEBHOOK_URL;
-  if (!endpoint) {
-    if (process.env.NODE_ENV === "production") return false;
-    const { photo, ...rest } = payload as { photo?: { size: number } };
-    console.info("Set RSVP_WEBHOOK_URL to store this:", rest, photo ? `(with a ${photo.size}-byte photo)` : "");
-    return true;
-  }
+async function forward(endpoint: string, payload: Record<string, unknown>) {
   try {
     const response = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...payload, secret: process.env.RSVP_WEBHOOK_SECRET ?? "" }) });
     if (!response.ok) throw new Error(`Webhook responded ${response.status}`);
@@ -29,6 +26,25 @@ async function forward(payload: Record<string, unknown>) {
     console.error(error);
     return false;
   }
+}
+
+async function keep(payload: Record<string, unknown>, save: (db: Db) => Promise<unknown>) {
+  const webhook = process.env.RSVP_WEBHOOK_URL;
+  if (sql) {
+    try {
+      await save(sql);
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+    if (webhook) await forward(webhook, payload);
+    return true;
+  }
+  if (webhook) return forward(webhook, payload);
+  if (process.env.NODE_ENV === "production") return false;
+  const { photo, ...rest } = payload as { photo?: { size: number } };
+  console.info("Set DATABASE_URL to store this:", rest, photo ? `(with a ${photo.size}-byte photo)` : "");
+  return true;
 }
 
 // ---------- Replying ----------
@@ -65,7 +81,7 @@ export async function submitRsvp(_previous: RsvpState, data: FormData): Promise<
     return name ? [{ guest: name, attending, plusOneOf: person.name }] : [];
   });
   const attending = replies.some(reply => reply.attending === "yes");
-  const sent = await forward({
+  const rsvp = {
     type: "rsvp",
     invitation: people.map(person => person!.name).join(", "),
     replies: [...replies.map(({ person, attending }) => ({ guest: person.name, attending })), ...guests],
@@ -75,7 +91,12 @@ export async function submitRsvp(_previous: RsvpState, data: FormData): Promise<
     note: text(data, "note", 1000),
     photo: photo && { name: photo.name, type: photo.type, size: photo.size, data: Buffer.from(await photo.arrayBuffer()).toString("base64") },
     receivedAt: new Date().toISOString(),
-  });
+  };
+  const sent = await keep(rsvp, db => db`
+    insert into rsvps (invitation, email, attending, replies, dietary, song, note, photo_name, photo_type, photo)
+    values (${rsvp.invitation}, ${email}, ${attending}, ${JSON.stringify(rsvp.replies)}::jsonb, ${rsvp.dietary || null},
+      ${rsvp.song || null}, ${rsvp.note || null}, ${rsvp.photo?.name ?? null}, ${rsvp.photo?.type ?? null},
+      decode(${rsvp.photo?.data ?? null}, 'base64'))`);
   if (!sent) return { status: "error", message: "We couldn’t save your RSVP just now. Please try again in a moment." };
   return { status: "sent", attending };
 }
@@ -95,6 +116,7 @@ export async function askQuestion(_previous: QuestionState, data: FormData): Pro
   if (!question.question) fields.question = "What would you like to ask?";
   if (Object.keys(fields).length) return { status: "error", message: "Just a couple of things to fill in.", fields };
   if (text(data, "website")) return { status: "sent" };
-  const sent = await forward({ type: "question", ...question, receivedAt: new Date().toISOString() });
+  const sent = await keep({ type: "question", ...question, receivedAt: new Date().toISOString() }, db => db`
+    insert into questions (name, email, question) values (${question.name}, ${question.email}, ${question.question})`);
   return sent ? { status: "sent" } : { status: "error", message: "We couldn’t send your question just now. Please try again in a moment." };
 }

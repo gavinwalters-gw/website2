@@ -1,5 +1,5 @@
 /* The invitation, from the envelope to the pages. Written for phones first, widened for desktop. Cream
-   paper and ink with one olive accent; Newsreader for reading and the script for titles. Polaroids of
+   paper and ink with one olive accent; Termes for reading, the script for titles and Calgary's capitals for headings. Polaroids of
    the two of them lie still behind everything, while the painted pieces in front sway gently. Things
    move when someone opens or closes something: the envelope washes to white, the pieces drop onto the
    table, and pages grow out of the piece that opened them. */
@@ -86,7 +86,7 @@ html:has(.gate) { overflow: hidden; }
    clears, and the rest fades in after. A note to the guests on white paper finishes it. */
 .table { position: relative; z-index: 1; display: grid; place-items: center; min-height: 100svh; padding: max(16px, env(safe-area-inset-top)) var(--gutter) 0; overflow: hidden; pointer-events: none; }
 .table:not([data-arrived]) { visibility: hidden; } /* the envelope has the screen to itself until it's opened */
-.pieces { position: relative; width: min(100%, 560px); aspect-ratio: 100 / 440; container-type: inline-size; }
+.pieces { position: relative; width: min(100%, 560px); aspect-ratio: 100 / 318; container-type: inline-size; }
 .piece, .decor {
   --x: var(--px); --y: var(--py); --w: var(--pw); --tilt: var(--pt); --spin: -7deg;
   position: absolute; left: calc(var(--x) * 100%); top: calc(var(--y) * 100%); width: calc(var(--w) * 100%);
@@ -104,9 +104,11 @@ html:has(.gate) { overflow: hidden; }
 .decor.snap img { object-fit: cover; animation: none; }
 /* The title at the top, and the strip of photos under it. */
 .board-title, .banner { --x: var(--px); --y: var(--py); --w: var(--pw); }
-.board-title { position: absolute; left: 0; top: calc(var(--y) * 100%); width: 100%; margin: 0; font: 400 7cqi/1.2 var(--font-serif), Georgia, serif; letter-spacing: .01em; text-align: center; color: var(--ink); }
+.board-title { position: absolute; left: 0; top: calc(var(--y) * 100%); width: 100%; margin: 0; font: 400 10.5cqi/1.15 var(--font-script), "Snell Roundhand", "Apple Chancery", cursive; text-align: center; color: var(--ink); }
 .banner { position: absolute; left: calc(var(--x) * 100%); top: calc(var(--y) * 100%); width: calc(var(--w) * 100%); aspect-ratio: 148.5 / 38.4; display: flex; overflow: hidden; border: 1px solid #5b5249; box-shadow: 0 10px 22px -14px #3c2d1e66; }
-.banner img { flex: 1 1 0; min-width: 0; height: 100%; object-fit: cover; user-select: none; -webkit-user-drag: none; }
+.banner-track { display: flex; width: max-content; height: 100%; animation: glide 45s linear infinite; }
+.banner img { flex: none; width: auto; height: 100%; user-select: none; -webkit-user-drag: none; }
+@keyframes glide { to { transform: translateX(-50%); } }
 .piece img, .decor img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-drag: none; }
 /* Each piece sways a little on the table, as if in a breeze, each at its own pace so they never move
    together. It's the painting inside that sways, so it doesn't fight the drop-in or the lift on hover.
@@ -118,11 +120,11 @@ html:has(.gate) { overflow: hidden; }
   from { transform: translateY(0) rotate(-1.6deg); }
   to { transform: translateY(-3.5%) rotate(1.6deg); }
 }
-html:has(.sheet:not([hidden])) :is(.piece, .decor) img { animation-play-state: paused; }
-@media (prefers-reduced-motion: reduce) { .piece img, .decor img { animation: none; } }
+html:has(.sheet:not([hidden])) :is(.piece img, .decor img, .banner-track) { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .piece img, .decor img, .banner-track { animation: none; } }
 @media (min-aspect-ratio: 5/4) {
   .pieces { width: min(100%, 1400px); aspect-ratio: 160 / 311; }
-  .board-title { font-size: 2.9cqi; }
+  .board-title { font-size: 4.6cqi; }
   .piece, .decor, .board-title, .banner { --x: var(--wx); --y: var(--wy); --w: var(--ww); --tilt: var(--wt); }
 }
 @media (hover: hover) {
@@ -132,7 +134,8 @@ html:has(.sheet:not([hidden])) :is(.piece, .decor) img { animation-play-state: p
 .piece:focus-visible { outline: none; filter: drop-shadow(0 0 2px var(--olive)) drop-shadow(0 10px 14px #3c2d1e33); }
 /* The note to the guests, on white paper the width of the screen, with the dogs to sign it off. */
 .send-off { justify-self: stretch; display: grid; justify-items: center; gap: 28px; margin: 48px calc(-1 * var(--gutter)) 0; padding: 72px var(--gutter) max(40px, calc(env(safe-area-inset-bottom) + 24px)); background: #fff; text-align: center; }
-.send-off p { max-width: 34ch; margin: 0; font: italic 400 clamp(20px, 2.2vw, 28px)/1.5 var(--font-serif), Georgia, serif; color: var(--ink); text-wrap: balance; }
+.send-off p { max-width: 30ch; margin: 0; font: italic 400 clamp(20px, 2.2vw, 28px)/1.5 var(--font-serif), Georgia, serif; color: var(--ink); text-wrap: balance; }
+.send-off-from { display: block; margin-top: 18px; font: 400 clamp(34px, 3.6vw, 46px)/1.1 var(--font-script), "Snell Roundhand", "Apple Chancery", cursive; font-style: normal; }
 .send-off img { width: 160px; height: auto; user-select: none; -webkit-user-drag: none; }
 /* Dropped onto the table: each piece falls in from a little higher, turned a little further, and
    settles with a small overshoot. */
@@ -173,13 +176,13 @@ html:has(.sheet:not([hidden])) { overflow: hidden; }
 .details-card::before { inset: 10px; border-width: 1.5px; }
 .details-card::after { inset: 15px; }
 .card-quiet { font-style: italic; color: var(--ink-soft); }
-.card-display { font-size: 34px; font-weight: 360; line-height: 1.15; letter-spacing: -.01em; }
+.card-display { font: 400 28px/1.2 var(--font-display), var(--font-serif), serif; letter-spacing: .04em; }
 .card-address { font-size: 17px; color: var(--ink-soft); }
 .card-rule { display: block; width: 44px; height: 1px; margin: 22px auto; background: #b9ab93; }
 .page-section { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; width: min(100%, 680px); margin: 0 auto; padding-top: clamp(40px, 8vw, 64px); }
 .page-section + .page-section { margin-top: clamp(40px, 8vw, 64px); border-top: 1px solid var(--line); }
-.page-section > h4 { margin: 14px 0 -6px; font-size: 21px; font-weight: 500; line-height: 1.3; }
-.section-title { margin: 0 0 4px; font-size: clamp(36px, 10vw, 50px); font-style: italic; font-weight: 320; line-height: 1.05; letter-spacing: -.015em; }
+.page-section > h4 { margin: 14px 0 -6px; font-size: 21px; font-weight: 700; line-height: 1.3; }
+.section-title { margin: 0 0 4px; font: 400 clamp(28px, 7.6vw, 40px)/1.15 var(--font-display), var(--font-serif), serif; letter-spacing: .04em; }
 
 /* The close button: a lace-edged sage badge with a stitched ring, pinned to the top corner. It pops in
    once the page has opened, turns a quarter on hover like a little flower, and squashes when pressed. */
@@ -197,7 +200,7 @@ html:has(.sheet:not([hidden])) { overflow: hidden; }
 @keyframes close-in { from { opacity: 0; transform: rotate(-120deg) scale(.3); } }
 @media (prefers-reduced-motion: reduce) { .sheet-close { animation: none; } }
 
-.block-title { margin: 0 0 4px; font-size: clamp(44px, 12vw, 62px); font-style: italic; font-weight: 320; line-height: 1; letter-spacing: -.015em; }
+.block-title { margin: 0 0 4px; font: 400 clamp(32px, 9vw, 46px)/1.1 var(--font-display), var(--font-serif), serif; letter-spacing: .04em; }
 .text-link { padding: 6px 0; font-size: 18px; color: var(--ink); text-decoration-line: underline; text-decoration-color: var(--olive); text-decoration-thickness: 1px; text-underline-offset: 6px; transition: color .2s; }
 .text-link:hover { color: var(--olive); }
 .text-link:focus-visible { outline: 2px solid var(--olive); outline-offset: 4px; border-radius: 2px; }
@@ -217,7 +220,7 @@ html:has(.sheet:not([hidden])) { overflow: hidden; }
 
 .hotels { display: grid; gap: 30px; width: 100%; margin: 6px 0 0; padding: 0; list-style: none; }
 @media (min-width: 640px) { .hotels { grid-template-columns: 1fr 1fr; } }
-.hotels h4 { margin: 0 0 4px; font-size: 21px; font-weight: 500; line-height: 1.3; }
+.hotels h4 { margin: 0 0 4px; font-size: 21px; font-weight: 700; line-height: 1.3; }
 .hotels p { margin-bottom: 4px; font-size: 18px; }
 
 
@@ -242,7 +245,7 @@ html:has(.sheet:not([hidden])) { overflow: hidden; }
 .polaroid-caption span:last-child { font-size: 15px; font-style: italic; color: var(--ink-soft); }
 
 .faqs { gap: 28px; }
-.faq h3 { margin: 0 0 6px; font-size: 21px; font-weight: 500; line-height: 1.3; }
+.faq h3 { margin: 0 0 6px; font-size: 21px; font-weight: 700; line-height: 1.3; }
 .places { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
 .places .text-link { font-size: 20px; }
 
@@ -317,7 +320,7 @@ html:has(.sheet:not([hidden])) { overflow: hidden; }
 .guest-remove:hover { background: #3c2d1e0f; color: var(--ink); }
 .guest-remove:focus-visible { outline: 2px solid var(--olive); }
 
-.button { display: inline-flex; flex-shrink: 0; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; padding: 14px 30px; border: 0; border-radius: 3px; background: var(--olive); color: #f6f1e6; font: 500 18px/1.25 var(--font-serif), Georgia, serif; text-decoration: none; cursor: pointer; transition: background-color .2s, transform .2s; }
+.button { display: inline-flex; flex-shrink: 0; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; padding: 14px 30px; border: 0; border-radius: 3px; background: var(--olive); color: #f6f1e6; font: 400 19px/1.25 var(--font-serif), Georgia, serif; text-decoration: none; cursor: pointer; transition: background-color .2s, transform .2s; }
 .button:hover { background: var(--olive-deep); }
 .button:active { transform: scale(.985); }
 .button:focus-visible { outline: 2px solid var(--olive); outline-offset: 3px; }
