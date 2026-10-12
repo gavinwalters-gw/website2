@@ -36,72 +36,98 @@ import tulipKiss from "@/content/photos/tulip-kiss.webp";
 import riverfront from "@/content/photos/riverfront.webp";
 import { guestMessage } from "@/content/wedding";
 import Polaroids from "./Polaroids";
+import { useArrange } from "./Arrange";
+import { ARRANGING, BOARD, type Arranged, type Layout, type Place } from "./boardSize";
+import { getLayout, placeOnBoard } from "./boards";
 
 export type PageId = "date" | "details" | "travel" | "rsvp" | "photos" | "party" | "faq" | "todo" | "registry";
 
 // Where a piece lies on the page: left, top and width in the page's units, and how far it's turned.
 // The page is 100 units wide on phones and 160 on wide screens, and taller than the screen on both, so it
-// scrolls. Phones keep the wide layout's arrangement, with the pieces drawn larger. On wide screens it's three screens of about 103 units each: the title, a strip of photos and
+// scrolls. Phones give each piece a band of its own, left and right in turn, with a photo or a flower in
+// the space beside it. On wide screens it's three screens of about 103 units each: the title, a strip of photos and
 // the Save the Date; then the details, RSVP, questions, travel and wedding party; then the registry,
 // photos and things to do. A note to the guests and the dogs finish it, below the board.
 type Spot = [x: number, y: number, width: number, tilt: number];
-const PHONE = { width: 100, height: 318 };
-const WIDE = { width: 160, height: 311 };
+const PHONE = BOARD.phone;
+const WIDE = BOARD.wide;
 
 const title: { phone: Spot; wide: Spot } = { phone: [0, 1.8, 100, 0], wide: [0, 2.6, 160, 0] };
-// The strip under the title: the photos glide slowly through it, round and round. It's this many times
-// as wide as it is tall.
+// The strip under the title: the photos glide slowly through it, round and round, and it can be swiped.
+// It's this many times as wide as it is tall.
 const banner: { phone: Spot; wide: Spot; photos: StaticImageData[] } = {
-  phone: [4, 14, 92, 0], wide: [6.6, 13.2, 148.5, 0],
+  phone: [3, 14, 94, 0], wide: [6.6, 13.2, 148.5, 0],
   photos: [romeSteps, silo, cruwood, proposal, romeStepsSitting, redbudWalk, withTheDog],
 };
 const BANNER_RATIO = 148.5 / 38.4;
-// Seconds for one round, so the strip moves at the same pace however many photos it holds.
-const glide = Math.round(banner.photos.reduce((sum, photo) => sum + photo.width / photo.height, 0) * 7.7);
 
 // The pieces on the page, in reading order (the order they drop in and are tabbed through).
 const pieces: { id: PageId; art: StaticImageData; label: string; phone: Spot; wide: Spot }[] = [
-  { id: "date", art: saveTheDate, label: "Save the date: June 13, 2027 in Grand Blanc", phone: [20, 41, 60, 0], wide: [49.3, 52.8, 59, 0] },
-  { id: "details", art: details, label: "The details", phone: [2, 104, 31, 0], wide: [17.2, 105.4, 29, 0] },
-  { id: "rsvp", art: rsvp, label: "Kindly RSVP", phone: [35, 120, 30, 0], wide: [66, 119.2, 32.3, 0] },
-  { id: "faq", art: faq, label: "Questions and answers", phone: [67, 119, 31, 0], wide: [111.2, 114, 34, 0] },
-  { id: "travel", art: travel, label: "Travel and accommodations", phone: [12, 182, 36, 0], wide: [28.7, 172, 31.7, 0] },
-  { id: "party", art: party, label: "The wedding party", phone: [66, 172, 27, 2], wide: [108, 164.5, 25.7, 2] },
-  { id: "registry", art: registry, label: "Registry", phone: [1, 234, 44, 0], wide: [16.5, 221, 45.5, 0] },
-  { id: "photos", art: photos, label: "Photos", phone: [66, 236, 33, 0], wide: [110.5, 222.6, 35.6, 0] },
-  { id: "todo", art: thingsToDo, label: "Things to do nearby", phone: [29, 265, 42, 0], wide: [69.3, 248, 38, 0] },
+  { id: "date", art: saveTheDate, label: "Save the date: June 13, 2027 in Grand Blanc", phone: [8, 46, 84, 0], wide: [49.3, 52.8, 59, 0] },
+  { id: "details", art: details, label: "The details", phone: [4, 126, 50, -2], wide: [17.2, 105.4, 29, 0] },
+  { id: "rsvp", art: rsvp, label: "Kindly RSVP", phone: [46, 205, 48, 2], wide: [66, 119.2, 32.3, 0] },
+  { id: "faq", art: faq, label: "Questions and answers", phone: [4, 290, 58, 0], wide: [111.2, 114, 34, 0] },
+  { id: "travel", art: travel, label: "Travel and accommodations", phone: [36, 352, 60, 0], wide: [28.7, 172, 31.7, 0] },
+  { id: "party", art: party, label: "The wedding party", phone: [6, 415, 42, -2], wide: [108, 164.5, 25.7, 2] },
+  { id: "registry", art: registry, label: "Registry", phone: [36, 481, 60, 0], wide: [16.5, 221, 45.5, 0] },
+  { id: "photos", art: photos, label: "Photos", phone: [4, 534, 54, 0], wide: [110.5, 222.6, 35.6, 0] },
+  { id: "todo", art: thingsToDo, label: "Things to do nearby", phone: [40, 588, 52, 0], wide: [69.3, 248, 38, 0] },
 ];
 
 // Clip art scattered between the pieces, just for looks.
-const clips: { art: StaticImageData; phone: Spot; wide: Spot }[] = [
-  { art: doves, phone: [1, 42, 19, 0], wide: [5.6, 56.4, 20.8, 0] },
-  { art: lily, phone: [6, 70, 14, 0], wide: [28, 78, 21.5, 0] },
-  { art: stem, phone: [84, 42, 12, 0], wide: [122, 57, 13, 0] },
-  { art: cosmos, phone: [36, 100, 8, 0], wide: [52.8, 108, 10.5, 0] },
-  { art: greenery, phone: [80, 150, 15, 0], wide: [133, 146, 20, 0] },
-  { art: bloom, phone: [52, 190, 12, 0], wide: [77, 176, 15, 0] },
-  { art: sprig, phone: [2, 206, 7, 0], wide: [10.9, 195, 9, 0] },
-  { art: peony, phone: [84, 212, 13, 0], wide: [138, 202, 18, 0] },
-  { art: vase, phone: [13, 300, 12, 0], wide: [44.5, 279.4, 16.5, 0] },
+const clips: { key: string; art: StaticImageData; phone: Spot; wide: Spot }[] = [
+  { key: "doves", art: doves, phone: [4, 368, 18, 0], wide: [5.6, 56.4, 20.8, 0] },
+  { key: "lily", art: lily, phone: [70, 182, 12, 0], wide: [28, 78, 21.5, 0] },
+  { key: "stem", art: stem, phone: [80, 300, 10, 0], wide: [122, 57, 13, 0] },
+  { key: "cosmos", art: cosmos, phone: [84, 462, 7, 0], wide: [52.8, 108, 10.5, 0] },
+  { key: "greenery", art: greenery, phone: [6, 490, 16, 0], wide: [133, 146, 20, 0] },
+  { key: "bloom", art: bloom, phone: [22, 258, 10, 0], wide: [77, 176, 15, 0] },
+  { key: "sprig", art: sprig, phone: [54, 408, 6, 0], wide: [10.9, 195, 9, 0] },
+  { key: "peony", art: peony, phone: [10, 640, 14, 0], wide: [138, 202, 18, 0] },
+  { key: "vase", art: vase, phone: [80, 642, 10, 0], wide: [44.5, 279.4, 16.5, 0] },
 ];
 
 // Polaroids of the two of them taped between the pieces (none of them in the strip or on the Save the
 // Date), each photo cropped to its own shape (width / height) around what matters in it.
-const snaps: { photo: StaticImageData; ratio: number; focus?: string; phone: Spot; wide: Spot }[] = [
-  { photo: romeTerrace, ratio: 75 / 80, focus: "60% 64%", phone: [77, 91, 22, 4], wide: [129.7, 82, 24.8, 4] },
-  { photo: tulipKiss, ratio: 64 / 60, focus: "52% 48%", phone: [4, 156, 22, -4], wide: [7, 147, 21.1, -4] },
-  { photo: ringPhoto, ratio: 73 / 67, phone: [47, 219, 18, 3], wide: [74.3, 207, 24, 3] },
-  { photo: riverfront, ratio: 81 / 76, focus: "56% 40%", phone: [3, 266, 22, -3], wide: [6.6, 256.3, 26.7, -3] },
-  { photo: romeGarden, ratio: 78 / 70, phone: [75, 272, 22, 4], wide: [125.4, 270, 25.7, 4] },
+const snaps: { key: string; photo: StaticImageData; ratio: number; focus?: string; phone: Spot; wide: Spot }[] = [
+  { key: "rome-terrace", photo: romeTerrace, ratio: 75 / 80, focus: "60% 64%", phone: [62, 140, 30, 4], wide: [129.7, 82, 24.8, 4] },
+  { key: "tulip-kiss", photo: tulipKiss, ratio: 64 / 60, focus: "52% 48%", phone: [8, 220, 30, -4], wide: [7, 147, 21.1, -4] },
+  { key: "ring", photo: ringPhoto, ratio: 73 / 67, phone: [62, 425, 28, 3], wide: [74.3, 207, 24, 3] },
+  { key: "riverfront", photo: riverfront, ratio: 81 / 76, focus: "56% 40%", phone: [66, 540, 28, 3], wide: [6.6, 256.3, 26.7, -3] },
+  { key: "rome-garden", photo: romeGarden, ratio: 78 / 70, phone: [6, 596, 28, -4], wide: [125.4, 270, 25.7, 4] },
 ];
+
+// Everything on the board by name, which is how where it's been dragged to is saved (boards.ts).
+type Spots = { phone: Spot; wide: Spot };
+const things: Record<string, Spots> = {
+  title, banner,
+  ...Object.fromEntries(pieces.map(piece => [piece.id, piece])),
+  ...Object.fromEntries(snaps.map(snap => [snap.key, snap])),
+  ...Object.fromEntries(clips.map(clip => [clip.key, clip])),
+};
+// Where a thing lies once it's been dragged (keeping its tilt), for phones and wide screens.
+const arrangedSpots = (key: string, arranged: Arranged): Spots => {
+  const { phone, wide } = things[key];
+  const moved = (spot: Spot, to?: Place): Spot => (to ? [to[0], to[1], to[2], spot[3]] : spot);
+  return { phone: moved(phone, arranged.phone[key]), wide: moved(wide, arranged.wide[key]) };
+};
+
+// Whether the screen is wide enough for the wide layout (the same test as site.css).
+const WIDE_SCREEN = "(min-aspect-ratio: 5/4)";
+const watchScreen = (onChange: () => void) => {
+  const query = window.matchMedia(WIDE_SCREEN);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+};
+const screenLayout = (): Layout => (window.matchMedia(WIDE_SCREEN).matches ? "wide" : "phone");
 
 // How wide each piece is drawn (the table's width is set in site.css), wide screens first, so phones
 // fetch only the pixels they show.
-const sizes = ({ phone, wide }: { phone: Spot; wide: Spot }) => {
+const sizes = ({ phone, wide }: Spots) => {
   const share = wide[2] / WIDE.width;
-  return `(min-aspect-ratio: 5/4) min(${(share * 96).toFixed(1)}vw, ${(share * 1400).toFixed(0)}px), ${(phone[2] * 0.92).toFixed(1)}vw`;
+  return `(min-aspect-ratio: 5/4) min(${(share * 96).toFixed(1)}vw, ${(share * 1400).toFixed(0)}px), ${(phone[2] * 0.96).toFixed(1)}vw`;
 };
-const place = ({ phone, wide }: { phone: Spot; wide: Spot }, i: number) => ({
+const place = ({ phone, wide }: Spots, i: number) => ({
   "--i": i,
   "--px": phone[0] / PHONE.width, "--py": phone[1] / PHONE.height, "--pw": phone[2] / PHONE.width, "--pt": `${phone[3]}deg`,
   "--wx": wide[0] / WIDE.width, "--wy": wide[1] / WIDE.height, "--ww": wide[2] / WIDE.width, "--wt": `${wide[3]}deg`,
@@ -222,9 +248,28 @@ export default function Invitation({ children }: { children: ReactNode }) {
   const timer = useRef(0);
   const origin = useRef<PageId | null>(null);
   const sheet = useRef<HTMLDivElement>(null);
+  const strip = useRef<HTMLDivElement>(null);
   const envelope = useRef<HTMLDivElement>(null);
   const pieceRefs = useRef(new Map<PageId, HTMLAnchorElement>());
   const returnTo = useRef<HTMLElement | null>(null);
+  const board = useRef<HTMLElement>(null);
+
+  // Where things on the board have been dragged to on the live site, which is the same for everyone.
+  const [arranged, setArranged] = useState<Arranged>({ phone: {}, wide: {} });
+  const layout = useSyncExternalStore<Layout>(watchScreen, screenLayout, () => "phone");
+  useEffect(() => {
+    getLayout().then(setArranged).catch(() => {});
+  }, []);
+  const spotsOf = (key: string) => arrangedSpots(key, arranged);
+  useArrange(board, {
+    enabled: ARRANGING && stage === "table" && !shown,
+    layout,
+    placeOf: key => spotsOf(key)[layout].slice(0, 3) as Place,
+    onPlace: (key, at) => {
+      setArranged(current => ({ ...current, [layout]: { ...current[layout], [key]: at } }));
+      placeOnBoard(layout, key, at).catch(() => {});
+    },
+  });
 
   // A link straight to a page goes past the envelope.
   if (page && stage === "envelope") setStage("table");
@@ -265,6 +310,47 @@ export default function Invitation({ children }: { children: ReactNode }) {
     const frame = requestAnimationFrame(openIfTapped);
     return () => cancelAnimationFrame(frame);
   }, []);
+
+  // The photo strip glides along by itself, and the guest can swipe it too. It holds the photos twice, so
+  // on reaching the second set it steps back one set, which looks the same. It waits while a finger is on
+  // it, for a moment after it's been moved by hand, and while a page covers it. Phones get a quicker
+  // pace than its size alone would give, or the strip would seem to stand still.
+  useEffect(() => {
+    const box = strip.current;
+    if (!box || stage !== "table" || reducedMotion()) return;
+    let at = box.scrollLeft, then = 0, held = false, restUntil = 0, frame = 0;
+    const rest = () => { restUntil = performance.now() + 2500; };
+    const glide = (now: number) => {
+      frame = requestAnimationFrame(glide);
+      const elapsed = Math.min(now - (then || now), 50);
+      then = now;
+      if (held || now < restUntil || sheet.current?.hidden === false) return;
+      at += Math.max(30, box.clientHeight / 7.7) * elapsed / 1000;
+      if (at >= box.scrollWidth / 2) at -= box.scrollWidth / 2;
+      box.scrollLeft = Math.round(at);
+    };
+    // A scroll that isn't the glide's own is the guest's.
+    const scrolled = () => {
+      if (Math.abs(box.scrollLeft - Math.round(at)) < 2) return;
+      at = box.scrollLeft;
+      if (!held && at <= 0) at = box.scrollLeft = box.scrollWidth / 2;
+      rest();
+    };
+    const hold = () => { held = true; };
+    const letGo = () => { held = false; rest(); };
+    box.addEventListener("scroll", scrolled, { passive: true });
+    box.addEventListener("pointerdown", hold);
+    window.addEventListener("pointerup", letGo);
+    window.addEventListener("pointercancel", letGo);
+    frame = requestAnimationFrame(glide);
+    return () => {
+      cancelAnimationFrame(frame);
+      box.removeEventListener("scroll", scrolled);
+      box.removeEventListener("pointerdown", hold);
+      window.removeEventListener("pointerup", letGo);
+      window.removeEventListener("pointercancel", letGo);
+    };
+  }, [stage]);
 
   const openPage = (event: MouseEvent, id: PageId) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -363,11 +449,13 @@ export default function Invitation({ children }: { children: ReactNode }) {
 
       {/* The pieces come back to life as soon as a page starts shrinking away, so a tap then opens the next. */}
       <main className="table" data-arrived={stage === "table" || undefined} inert={stage !== "table" || (!!shown && !leaving)}>
-        <nav className="pieces" aria-label="The invitation">
-          <p className="board-title" style={place(title, 0)} aria-hidden="true">Walters Wedding</p>
-          <div className="banner" style={place(banner, 0)} aria-hidden="true">
-            {/* The photos twice over, so the strip can slide by one set and start again without a seam. */}
-            <div className="banner-track" style={{ animationDuration: `${glide}s` }}>
+        <nav ref={board} className="pieces" aria-label="The invitation">
+          <p className="board-title" data-spot="title" style={place(spotsOf("title"), 0)} aria-hidden="true">Walters Wedding</p>
+          <div ref={strip} className="banner" data-spot="banner" style={place(spotsOf("banner"), 0)} aria-hidden="true">
+            {/* The photos twice over, so the strip can slide by one set and start again without a seam.
+                They're all fetched while the envelope is up, not as each slides into view, and show
+                blurred until they arrive. */}
+            <div className="banner-track">
               {(warm || stage === "table") && [0, 1].flatMap(round => banner.photos.map(photo => {
                 const share = photo.width / photo.height / BANNER_RATIO;
                 return (
@@ -375,7 +463,9 @@ export default function Invitation({ children }: { children: ReactNode }) {
                     key={`${round}-${photo.src}`}
                     src={photo}
                     alt=""
-                    sizes={sizes({ phone: [0, 0, banner.phone[2] * share, 0], wide: [0, 0, banner.wide[2] * share, 0] })}
+                    sizes={sizes({ phone: [0, 0, spotsOf("banner").phone[2] * share, 0], wide: [0, 0, spotsOf("banner").wide[2] * share, 0] })}
+                    loading="eager"
+                    placeholder="blur"
                     draggable={false}
                   />
                 );
@@ -388,26 +478,28 @@ export default function Invitation({ children }: { children: ReactNode }) {
               ref={link => { if (link) pieceRefs.current.set(piece.id, link); }}
               href={`#${piece.id}`}
               className={`piece piece-${piece.id}`}
-              style={{ ...place(piece, i), aspectRatio: `${piece.art.width} / ${piece.art.height}` }}
+              data-spot={piece.id}
+              style={{ ...place(spotsOf(piece.id), i), aspectRatio: `${piece.art.width} / ${piece.art.height}` }}
               aria-label={piece.label}
               onClick={event => openPage(event, piece.id)}
             >
-              {(warm || stage === "table") && <Image src={piece.art} alt="" sizes={sizes(piece)} draggable={false} />}
+              {(warm || stage === "table") && <Image src={piece.art} alt="" sizes={sizes(spotsOf(piece.id))} draggable={false} />}
             </a>
           ))}
           {snaps.map((snap, i) => (
-            <span key={snap.photo.src} className="decor snap" style={place(snap, i)} aria-hidden="true">
-              {(warm || stage === "table") && <Image src={snap.photo} alt="" style={{ aspectRatio: snap.ratio, objectPosition: snap.focus }} sizes={sizes(snap)} draggable={false} />}
+            <span key={snap.key} className="decor snap" data-spot={snap.key} style={place(spotsOf(snap.key), i)} aria-hidden="true">
+              {(warm || stage === "table") && <Image src={snap.photo} alt="" style={{ aspectRatio: snap.ratio, objectPosition: snap.focus }} sizes={sizes(spotsOf(snap.key))} draggable={false} />}
             </span>
           ))}
           {clips.map((clip, i) => (
             <span
-              key={clip.art.src}
+              key={clip.key}
               className="decor"
-              style={{ ...place(clip, i), aspectRatio: `${clip.art.width} / ${clip.art.height}` }}
+              data-spot={clip.key}
+              style={{ ...place(spotsOf(clip.key), i), aspectRatio: `${clip.art.width} / ${clip.art.height}` }}
               aria-hidden="true"
             >
-              {(warm || stage === "table") && <Image src={clip.art} alt="" sizes={sizes(clip)} draggable={false} />}
+              {(warm || stage === "table") && <Image src={clip.art} alt="" sizes={sizes(spotsOf(clip.key))} draggable={false} />}
             </span>
           ))}
         </nav>

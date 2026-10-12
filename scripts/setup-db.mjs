@@ -29,10 +29,18 @@ await sql`create table if not exists questions (
   question text not null
 )`;
 
+// Where things on the board have been dragged to and how big they've been made, one row for phones and
+// one for wide screens. Anything not in here lies where Invitation.tsx puts it.
+await sql`create table if not exists board_layout (
+  layout text primary key check (layout in ('phone', 'wide')),
+  spots jsonb not null default '{}',
+  updated_at timestamptz not null default now()
+)`;
+
 // One row per guest, which is the list to count heads from.
 await sql`create or replace view rsvp_guests as
   select r.id as rsvp, reply->>'guest' as guest, reply->>'attending' = 'yes' as attending,
          reply->>'plusOneOf' as plus_one_of, r.email, r.dietary, r.received_at
   from rsvps r, jsonb_array_elements(r.replies) reply`;
 
-console.log("Tables ready: rsvps, questions, and the rsvp_guests view.");
+console.log("Tables ready: rsvps, questions, board_layout, and the rsvp_guests view.");

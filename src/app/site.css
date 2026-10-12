@@ -86,7 +86,9 @@ html:has(.gate) { overflow: hidden; }
    clears, and the rest fades in after. A note to the guests on white paper finishes it. */
 .table { position: relative; z-index: 1; display: grid; place-items: center; min-height: 100svh; padding: max(16px, env(safe-area-inset-top)) var(--gutter) 0; overflow: hidden; pointer-events: none; }
 .table:not([data-arrived]) { visibility: hidden; } /* the envelope has the screen to itself until it's opened */
-.pieces { position: relative; width: min(100%, 560px); aspect-ratio: 100 / 318; container-type: inline-size; }
+.pieces { position: relative; width: min(100%, 560px); aspect-ratio: 100 / 660; container-type: inline-size; }
+/* Phones give the board nearly all their width, so the pieces can be drawn bigger. */
+@media not (min-aspect-ratio: 5/4) { .table { --gutter: max(8px, env(safe-area-inset-left), env(safe-area-inset-right)); } }
 .piece, .decor {
   --x: var(--px); --y: var(--py); --w: var(--pw); --tilt: var(--pt); --spin: -7deg;
   position: absolute; left: calc(var(--x) * 100%); top: calc(var(--y) * 100%); width: calc(var(--w) * 100%);
@@ -104,11 +106,11 @@ html:has(.gate) { overflow: hidden; }
 .decor.snap img { object-fit: cover; animation: none; }
 /* The title at the top, and the strip of photos under it. */
 .board-title, .banner { --x: var(--px); --y: var(--py); --w: var(--pw); }
-.board-title { position: absolute; left: 0; top: calc(var(--y) * 100%); width: 100%; margin: 0; font: 400 10.5cqi/1.15 var(--font-script), "Snell Roundhand", "Apple Chancery", cursive; text-align: center; color: var(--ink); }
-.banner { position: absolute; left: calc(var(--x) * 100%); top: calc(var(--y) * 100%); width: calc(var(--w) * 100%); aspect-ratio: 148.5 / 38.4; display: flex; overflow: hidden; border: 1px solid #5b5249; box-shadow: 0 10px 22px -14px #3c2d1e66; }
-.banner-track { display: flex; width: max-content; height: 100%; animation: glide 45s linear infinite; }
+.board-title { position: absolute; left: calc(var(--x) * 100%); top: calc(var(--y) * 100%); width: calc(var(--w) * 100%); margin: 0; font: 400 calc(var(--w) * 10.5cqi)/1.15 var(--font-script), "Snell Roundhand", "Apple Chancery", cursive; text-align: center; color: var(--ink); }
+.banner { position: absolute; left: calc(var(--x) * 100%); top: calc(var(--y) * 100%); width: calc(var(--w) * 100%); aspect-ratio: 148.5 / 38.4; display: flex; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; pointer-events: auto; border: 1px solid #5b5249; box-shadow: 0 10px 22px -14px #3c2d1e66; }
+.banner::-webkit-scrollbar { display: none; }
+.banner-track { display: flex; width: max-content; height: 100%; }
 .banner img { flex: none; width: auto; height: 100%; user-select: none; -webkit-user-drag: none; }
-@keyframes glide { to { transform: translateX(-50%); } }
 .piece img, .decor img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-drag: none; }
 /* Each piece sways a little on the table, as if in a breeze, each at its own pace so they never move
    together. It's the painting inside that sways, so it doesn't fight the drop-in or the lift on hover.
@@ -120,17 +122,21 @@ html:has(.gate) { overflow: hidden; }
   from { transform: translateY(0) rotate(-1.6deg); }
   to { transform: translateY(-3.5%) rotate(1.6deg); }
 }
-html:has(.sheet:not([hidden])) :is(.piece img, .decor img, .banner-track) { animation-play-state: paused; }
-@media (prefers-reduced-motion: reduce) { .piece img, .decor img, .banner-track { animation: none; } }
+html:has(.sheet:not([hidden])) :is(.piece img, .decor img) { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .piece img, .decor img { animation: none; } }
 @media (min-aspect-ratio: 5/4) {
   .pieces { width: min(100%, 1400px); aspect-ratio: 160 / 311; }
-  .board-title { font-size: 4.6cqi; }
+  .board-title { font-size: calc(var(--w) * 4.6cqi); }
   .piece, .decor, .board-title, .banner { --x: var(--wx); --y: var(--wy); --w: var(--ww); --tilt: var(--wt); }
 }
 @media (hover: hover) {
   .piece:hover { transform: translateY(-10px) rotate(calc(var(--tilt) * .4)) scale(1.03); filter: drop-shadow(0 26px 24px #3c2d1e38) drop-shadow(0 4px 6px #3c2d1e1a); }
 }
 .piece:active { transform: rotate(var(--tilt)) scale(.97); transition-duration: .15s; }
+/* While the board can be laid out by hand (see Arrange.ts), everything on it can be grabbed, and what's
+   being dragged comes up above the rest. */
+.pieces[data-arranging] [data-spot] { pointer-events: auto; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.pieces [data-dragging] { z-index: 5; cursor: grabbing; }
 .piece:focus-visible { outline: none; filter: drop-shadow(0 0 2px var(--olive)) drop-shadow(0 10px 14px #3c2d1e33); }
 /* The note to the guests, on white paper the width of the screen, with the dogs to sign it off. */
 .send-off { justify-self: stretch; display: grid; justify-items: center; gap: 28px; margin: 48px calc(-1 * var(--gutter)) 0; padding: 72px var(--gutter) max(40px, calc(env(safe-area-inset-bottom) + 24px)); background: #fff; text-align: center; }
