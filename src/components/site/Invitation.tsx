@@ -52,7 +52,7 @@ type Spot = [x: number, y: number, width: number, tilt: number];
 const PHONE = BOARD.phone;
 const WIDE = BOARD.wide;
 
-const title: { phone: Spot; wide: Spot } = { phone: [0.3, 1, 100, 0], wide: [0, 2.6, 160, 0] };
+const title: { phone: Spot; wide: Spot } = { phone: [0.3, 1, 100, 0], wide: [1.8, 2.3, 160, 0] };
 // The strip under the title: the photos glide slowly through it, round and round, and it can be swiped.
 // It's this many times as wide as it is tall (the same as .banner in site.css), a little taller on phones.
 const banner: { phone: Spot; wide: Spot; photos: StaticImageData[] } = {
@@ -63,37 +63,37 @@ const BANNER_RATIO = { phone: 3.2, wide: 148.5 / 38.4 };
 
 // The pieces on the page, in reading order (the order they drop in and are tabbed through).
 const pieces: { id: PageId; art: StaticImageData; label: string; phone: Spot; wide: Spot }[] = [
-  { id: "date", art: saveTheDate, label: "Save the date: June 13, 2027 in Grand Blanc", phone: [14.5, 45.9, 69.9, 0], wide: [53.5, 52.8, 50.6, 0] },
-  { id: "details", art: details, label: "The details", phone: [5.6, 112.8, 38.2, -2], wide: [18, 105.4, 27.4, 0] },
-  { id: "rsvp", art: rsvp, label: "Kindly RSVP", phone: [51.6, 182.4, 45.1, 2], wide: [66.2, 119.2, 31.9, 0] },
-  { id: "faq", art: faq, label: "Questions and answers", phone: [-0.4, 243.1, 49.1, 0], wide: [111.6, 114, 33.3, 0] },
-  { id: "travel", art: travel, label: "Travel and accommodations", phone: [46.6, 301.9, 49.1, 0], wide: [29.3, 172, 30.5, 0] },
+  { id: "date", art: saveTheDate, label: "Save the date: June 13, 2027 in Grand Blanc", phone: [15.9, 48.5, 63.3, 0], wide: [55.4, 52.9, 50.6, 0] },
+  { id: "details", art: details, label: "The details", phone: [2.9, 105, 38.2, -2], wide: [10.5, 96.6, 27.4, 0] },
+  { id: "rsvp", art: rsvp, label: "Kindly RSVP", phone: [54.6, 175.8, 45.1, 2], wide: [65.2, 121, 31.9, 0] },
+  { id: "faq", art: faq, label: "Questions and answers", phone: [4.8, 244.9, 41.8, 0], wide: [109.8, 110.1, 33.3, 0] },
+  { id: "travel", art: travel, label: "Travel and accommodations", phone: [46.6, 301.9, 49.1, 0], wide: [31.7, 179.1, 30.5, 0] },
   { id: "party", art: party, label: "The wedding party", phone: [2.3, 358, 34.4, -2], wide: [108.7, 164.5, 24.4, 2] },
-  { id: "registry", art: registry, label: "Registry", phone: [39.9, 431.1, 58.6, 0], wide: [16.5, 222.4, 45.5, 0] },
-  { id: "photos", art: photos, label: "Photos", phone: [22.7, 491.8, 53.5, 0], wide: [110.5, 222.7, 35.6, 0] },
-  { id: "todo", art: thingsToDo, label: "Things to do nearby", phone: [-9.1, 567.7, 79.5, 0], wide: [69.9, 251.6, 38, 0] },
+  { id: "registry", art: registry, label: "Registry", phone: [44.6, 431.5, 54.7, 0], wide: [16.5, 222.4, 45.5, 0] },
+  { id: "photos", art: photos, label: "Photos", phone: [24.3, 493.8, 45.8, 0], wide: [110.5, 222.7, 35.6, 0] },
+  { id: "todo", art: thingsToDo, label: "Things to do nearby", phone: [-1.4, 574.8, 60.5, 0], wide: [61.5, 253.6, 43.6, 0] },
 ];
 
 // Clip art scattered between the pieces, just for looks.
 const clips: { key: string; art: StaticImageData; phone: Spot; wide: Spot }[] = [
-  { key: "doves", art: doves, phone: [5.4, 307.3, 25.9, 0], wide: [5.6, 56.4, 20.8, 0] },
-  { key: "lily", art: lily, phone: [85, 157.2, 12, 0], wide: [28, 78, 21.5, 0] },
-  { key: "stem", art: stem, phone: [58.5, 262.4, 24.2, 0], wide: [122, 57, 13, 0] },
-  { key: "cosmos", art: cosmos, phone: [83.1, 493.4, 15.1, 0], wide: [52.8, 108, 10.5, 0] },
-  { key: "greenery", art: greenery, phone: [10.9, 541, 25.7, 0], wide: [133, 146, 20, 0] },
-  { key: "bloom", art: bloom, phone: [22, 258, 10, 0], wide: [77, 176, 15, 0] },
+  { key: "doves", art: doves, phone: [5.4, 307.3, 25.9, 0], wide: [10.5, 58.2, 20.8, 0] },
+  { key: "lily", art: lily, phone: [85, 157.2, 12, 0], wide: [44.8, 91.6, 17.2, 0] },
+  { key: "stem", art: stem, phone: [63.2, 254.3, 24.2, 0], wide: [121.5, 57.1, 13, 0] },
+  { key: "cosmos", art: cosmos, phone: [83.1, 493.4, 15.1, 0], wide: [40.8, 130, 10.5, 0] },
+  { key: "greenery", art: greenery, phone: [10.9, 541, 25.7, 0], wide: [137.5, 141.8, 20, 0] },
+  { key: "bloom", art: bloom, phone: [22, 258, 10, 0], wide: [77.5, 179.6, 15, 0] },
   { key: "sprig", art: sprig, phone: [54, 408, 6, 0], wide: [10.9, 195, 9, 0] },
   { key: "peony", art: peony, phone: [69.6, 613.6, 28.2, 0], wide: [138, 202, 18, 0] },
-  { key: "vase", art: vase, phone: [41.8, 643.1, 16.7, 0], wide: [44.5, 279.4, 16.5, 0] },
+  { key: "vase", art: vase, phone: [41.8, 643.1, 16.7, 0], wide: [77, 300.3, 11.2, 0] },
 ];
 
 // Polaroids of the two of them taped between the pieces (none of them in the strip or on the Save the
 // Date), each photo cropped to its own shape (width / height) around what matters in it.
 const snaps: { key: string; photo: StaticImageData; ratio: number; focus?: string; phone: Spot; wide: Spot }[] = [
-  { key: "rome-terrace", photo: romeTerrace, ratio: 75 / 80, focus: "60% 64%", phone: [57.4, 128.8, 30, 4], wide: [129.7, 82, 24.8, 4] },
-  { key: "tulip-kiss", photo: tulipKiss, ratio: 64 / 60, focus: "52% 48%", phone: [6.3, 183.2, 34.3, -4], wide: [7, 158, 21.1, -4] },
-  { key: "ring", photo: ringPhoto, ratio: 73 / 67, phone: [50.9, 364.6, 46.7, 3], wide: [74.3, 207, 24, 3] },
-  { key: "riverfront", photo: riverfront, ratio: 81 / 76, focus: "56% 40%", phone: [4.1, 448.5, 32.8, 3], wide: [6.6, 256.3, 26.7, -3] },
+  { key: "rome-terrace", photo: romeTerrace, ratio: 75 / 80, focus: "60% 64%", phone: [59.6, 117.5, 30, 4], wide: [123.5, 78.4, 20.9, 4] },
+  { key: "tulip-kiss", photo: tulipKiss, ratio: 64 / 60, focus: "52% 48%", phone: [6.3, 183.2, 34.3, -4], wide: [15.5, 148.5, 21.1, -4] },
+  { key: "ring", photo: ringPhoto, ratio: 73 / 67, phone: [52.1, 368.3, 39.4, 3], wide: [74.3, 207, 24, 3] },
+  { key: "riverfront", photo: riverfront, ratio: 81 / 76, focus: "56% 40%", phone: [4.1, 448.5, 32.8, 3], wide: [10.6, 259.3, 26.7, -3] },
   { key: "rome-garden", photo: romeGarden, ratio: 78 / 70, phone: [60.7, 541.8, 39.3, -4], wide: [125.4, 270, 25.7, 4] },
 ];
 
@@ -321,25 +321,33 @@ export default function Invitation({ children }: { children: ReactNode }) {
   // The photo strip glides along by itself, and the guest can swipe it too. It holds the photos twice, so
   // on reaching the second set it steps back one set, which looks the same. It waits while a finger is on
   // it, for a moment after it's been swiped, and while a page covers it; scrolling the page or tapping
-  // elsewhere doesn't stop it. Phones get a quicker
-  // pace than its size alone would give, or the strip would seem to stand still.
+  // elsewhere doesn't stop it. Phones get a quicker pace than its size alone would give, or the strip
+  // would seem to stand still. It scrolls by whole pixels and the track is nudged the fraction between,
+  // so it glides rather than ticks, and it eases back up to pace after stopping.
   useEffect(() => {
     const box = strip.current;
-    if (!box || stage !== "table" || reducedMotion()) return;
-    let at = box.scrollLeft, then = 0, held = false, restUntil = 0, frame = 0;
+    const track = box?.firstElementChild as HTMLElement | null;
+    if (!box || !track || stage !== "table" || reducedMotion()) return;
+    let at = box.scrollLeft, speed = 0, then = 0, held = false, restUntil = 0, frame = 0;
     const rest = () => { restUntil = performance.now() + 2500; };
+    const nudge = (by: number) => { track.style.transform = by ? `translate3d(${-by}px, 0, 0)` : ""; };
     const glide = (now: number) => {
       frame = requestAnimationFrame(glide);
       const elapsed = Math.min(now - (then || now), 50);
       then = now;
-      if (held || now < restUntil || sheet.current?.hidden === false) return;
-      at += Math.max(22, box.clientHeight / 10) * elapsed / 1000;
+      if (held || now < restUntil || sheet.current?.hidden === false) { speed = 0; return; }
+      const pace = Math.max(22, box.clientHeight / 10);
+      speed = pace - (pace - speed) * Math.exp(-elapsed / 600);
+      at += speed * elapsed / 1000;
       if (at >= box.scrollWidth / 2) at -= box.scrollWidth / 2;
-      box.scrollLeft = Math.round(at);
+      const whole = Math.floor(at);
+      if (box.scrollLeft !== whole) box.scrollLeft = whole;
+      nudge(at - whole);
     };
     // A scroll that isn't the glide's own is the guest's.
     const scrolled = () => {
-      if (Math.abs(box.scrollLeft - Math.round(at)) < 2) return;
+      if (Math.abs(box.scrollLeft - Math.floor(at)) < 2) return;
+      nudge(0);
       at = box.scrollLeft;
       if (!held && at <= 0) at = box.scrollLeft = box.scrollWidth / 2;
       rest();
@@ -357,12 +365,14 @@ export default function Invitation({ children }: { children: ReactNode }) {
       box.removeEventListener("pointerdown", hold);
       window.removeEventListener("pointerup", letGo);
       window.removeEventListener("pointercancel", letGo);
+      nudge(0);
     };
   }, [stage]);
 
   const openPage = (event: MouseEvent, id: PageId) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
+    if (currentPage()) return; // a second quick tap, landing before the page covers the table
     origin.current = id;
     go(id, "push");
   };
@@ -405,7 +415,10 @@ export default function Invitation({ children }: { children: ReactNode }) {
     };
 
     if (leaving) {
+      let gone = false;
       const done = () => {
+        if (gone) return;
+        gone = true;
         returnTo.current = piece ?? null;
         setShown(null);
         if (!still) piece?.animate([{ transform: "scale(1.05)" }, { transform: "none" }], { duration: 500, easing: EASE, composite: "add" });
@@ -420,7 +433,10 @@ export default function Invitation({ children }: { children: ReactNode }) {
         { duration: 600, easing: GROW, fill: "forwards" },
       );
       shrink.onfinish = done;
-      return;
+      // If the shrink is held up (the browser stops animating), the sheet still goes, or it would sit
+      // there unseen over the table, keeping it from being tapped or scrolled.
+      const late = window.setTimeout(done, 900);
+      return () => window.clearTimeout(late);
     }
 
     box.scrollTop = 0;

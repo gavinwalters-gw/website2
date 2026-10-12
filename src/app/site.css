@@ -109,7 +109,7 @@ html:has(.gate) { overflow: hidden; }
 .board-title { position: absolute; left: calc(var(--x) * 100%); top: calc(var(--y) * 100%); width: calc(var(--w) * 100%); margin: 0; font: 400 calc(var(--w) * 10.5cqi)/1.15 var(--font-script), "Snell Roundhand", "Apple Chancery", cursive; text-align: center; color: var(--ink); }
 .banner { position: absolute; left: calc(var(--x) * 100%); top: calc(var(--y) * 100%); width: calc(var(--w) * 100%); aspect-ratio: 3.2; display: flex; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; pointer-events: auto; border: 1px solid #5b5249; box-shadow: 0 10px 22px -14px #3c2d1e66; }
 .banner::-webkit-scrollbar { display: none; }
-.banner-track { display: flex; width: max-content; height: 100%; }
+.banner-track { display: flex; width: max-content; height: 100%; will-change: transform; }
 .banner img { flex: none; width: auto; height: 100%; user-select: none; -webkit-user-drag: none; }
 .piece img, .decor img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-drag: none; }
 /* Each piece sways a little on the table, as if in a breeze, each at its own pace so they never move
