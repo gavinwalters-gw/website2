@@ -13,6 +13,34 @@ export const dispatchFrom = (event: FormEvent<HTMLFormElement>, dispatch: (data:
   startTransition(() => dispatch(data));
 };
 
+// A reply that never gets through (no signal, or the site was updated since the page was opened) comes
+// back as a message to try again, rather than an error that takes down the page and everything typed.
+export const safely = <State,>(action: (previous: State, data: FormData) => Promise<State>, failed: State) =>
+  async (previous: State, data: FormData) => {
+    try {
+      return await action(previous, data);
+    } catch (error) {
+      console.error(error);
+      return failed;
+    }
+  };
+
+// After a reply comes back with something to fix, take the guest to the first thing to fix (on a phone it
+// can be well above the button); once it's sent, to the thank you, so it's seen and read out.
+export function useFollowUp<Thanks extends HTMLElement>(state: { status: string; fields?: Record<string, string> }) {
+  const form = useRef<HTMLFormElement>(null);
+  const thanks = useRef<Thanks>(null);
+  useEffect(() => {
+    if (state.status === "sent") thanks.current?.focus();
+    if (state.status !== "error" || !state.fields) return;
+    const first = form.current?.querySelector<HTMLElement>('[aria-invalid="true"]');
+    (first?.matches("fieldset") ? first.querySelector<HTMLElement>('input:not([type="hidden"])') : first)?.focus();
+  }, [state]);
+  return { form, thanks };
+}
+
+const sendRsvp = safely<RsvpState>(submitRsvp, { status: "error", message: "We couldn’t reach the site just now. Please check your connection and try again, or reload the page." });
+
 // Phone photos are several megabytes; a 1600px JPEG is plenty and uploads quickly.
 async function shrink(file: File) {
   try {
@@ -31,17 +59,18 @@ async function shrink(file: File) {
 
 // The guest finds their name, adds anyone else they're replying for, and answers for each of them.
 export default function RsvpForm() {
-  const [state, reply, sending] = useActionState<RsvpState, FormData>(submitRsvp, { status: "idle" });
+  const [state, reply, sending] = useActionState<RsvpState, FormData>(sendRsvp, { status: "idle" });
   const [preparing, setPreparing] = useState(false);
   const [people, setPeople] = useState<Match[]>([]);
   const [answers, setAnswers] = useState<Record<string, "yes" | "no">>({});
   const errors = state.status === "error" ? state.fields ?? {} : {};
   const anyoneComing = people.some(person => answers[person.id] === "yes");
   const busy = preparing || sending;
+  const { form, thanks } = useFollowUp<HTMLDivElement>(state);
 
   if (state.status === "sent") {
     return (
-      <div className="rsvp-thanks" role="status">
+      <div ref={thanks} className="rsvp-thanks" role="status" tabIndex={-1}>
         <p className="block-title">{state.attending ? "See you there!" : "You’ll be missed"}</p>
         <p>{state.attending ? "Thank you! We can’t wait to celebrate with you." : "Thank you for letting us know. We’ll be thinking of you on the day."}</p>
       </div>
@@ -75,7 +104,7 @@ export default function RsvpForm() {
   const described = (name: string) => ({ "aria-invalid": errors[name] ? true : undefined, "aria-describedby": errors[name] ? `rsvp-${name}-error` : undefined });
 
   return (
-    <form className="rsvp-form" onSubmit={submit} noValidate>
+    <form ref={form} className="rsvp-form" onSubmit={submit} noValidate>
       <div className="field">
         <GuestSearch
           label={people.length ? "Replying for someone else too?" : "Find your name"}
@@ -177,7 +206,7 @@ function GuestSearch({ label, hint, picked, onPick, invalid }: { label: string; 
   const box = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
-  const [found, setFound] = useState<{ query: string; matches: Match[] }>({ query: "", matches: [] });
+  const [found, setFound] = useState<{ query: string; matches: Match[]; failed?: boolean }>({ query: "", matches: [] });
   const [active, setActive] = useState(0);
   const [open, setOpen] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -191,9 +220,17 @@ function GuestSearch({ label, hint, picked, onPick, invalid }: { label: string; 
     const controller = new AbortController();
     const timer = setTimeout(() => {
       fetch(`/api/guests?q=${encodeURIComponent(typed)}`, { signal: controller.signal })
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) throw new Error(`Guest search responded ${response.status}`);
+          return response.json();
+        })
         .then((matches: Match[]) => { setFound({ query: typed, matches }); setActive(0); })
-        .catch(() => {});
+        // With no answer the list would just never appear, so say so rather than leave the guest waiting.
+        .catch(error => {
+          if (controller.signal.aborted) return;
+          console.error(error);
+          setFound({ query: typed, matches: [], failed: true });
+        });
     }, 120);
     return () => { clearTimeout(timer); controller.abort(); };
   }, [typed]);
@@ -283,7 +320,11 @@ function GuestSearch({ label, hint, picked, onPick, invalid }: { label: string; 
             {match.name}
           </li>
         ))}
-        {matches.length === 0 && <li className="guest-none" role="presentation">No one by that name. Try it as it’s written on your invitation, or email us at {contactEmail}.</li>}
+        {matches.length === 0 && (
+          <li className="guest-none" role="presentation">
+            {found.failed ? `We couldn’t look that up just now. Please check your connection and try again, or email us at ${contactEmail}.` : `No one by that name. Try it as it’s written on your invitation, or email us at ${contactEmail}.`}
+          </li>
+        )}
       </ul>
     </div>
   );

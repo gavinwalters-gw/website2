@@ -302,6 +302,7 @@ html:has(.sheet:not([hidden])) { overflow: hidden; }
 .rsvp-married { gap: 14px; }
 .rsvp-form .file-input { padding: 10px; font-size: 16px; }
 .rsvp-thanks .block-title { font-size: 36px; }
+.rsvp-thanks:focus { outline: none; }
 /* Finding names: suggestions drop down under the box as you type, others with the same last name are offered
    as little tags to add, and each person picked gets a card with their own answer. */
 .guest-search { display: flex; flex-direction: column; gap: 6px; }

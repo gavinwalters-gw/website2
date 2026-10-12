@@ -156,25 +156,36 @@ const fetchFonts = () => document.fonts.forEach(face => { if (coversLatin(face.u
 declare global { interface Window { envelopeTapped?: boolean } }
 
 // Which page is open lives in the address (/#rsvp), so the back button closes it and a link can open it.
+// But the address is Next's too: its router rewrites it from its own copy now and then, telling no one.
+// So the open page is kept here, and taken from the address only when the site loads or the guest goes
+// back or forward. Read afresh on every render, a rewrite that dropped the #page would close the page
+// the next time anything changed, and one that brought it back would leave the table ignoring every tap.
 const isPage = (id: string): id is PageId => pieces.some(piece => piece.id === id);
-const currentPage = () => {
+const fromAddress = () => {
   const id = decodeURIComponent(window.location.hash.slice(1));
   return isPage(id) ? id : null;
 };
+let open: PageId | null | undefined; // not yet read from the address
+const currentPage = () => (open === undefined ? (open = fromAddress()) : open);
 const listeners = new Set<() => void>();
 const watchPage = (onChange: () => void) => {
+  const moved = () => {
+    open = fromAddress();
+    onChange();
+  };
   listeners.add(onChange);
-  window.addEventListener("popstate", onChange);
-  window.addEventListener("hashchange", onChange);
+  window.addEventListener("popstate", moved);
+  window.addEventListener("hashchange", moved);
   return () => {
     listeners.delete(onChange);
-    window.removeEventListener("popstate", onChange);
-    window.removeEventListener("hashchange", onChange);
+    window.removeEventListener("popstate", moved);
+    window.removeEventListener("hashchange", moved);
   };
 };
 // Opening a page from the table adds a history entry marked as such; moving between pages replaces it,
 // so closing always lands back on the table.
 const go = (page: PageId | null, how: "push" | "replace") => {
+  open = page;
   const url = page ? `#${page}` : window.location.pathname + window.location.search;
   if (how === "push") window.history.pushState({ fromTable: true }, "", url);
   else window.history.replaceState(window.history.state, "", url);
@@ -259,6 +270,7 @@ export default function Invitation({ children }: { children: ReactNode }) {
   const pieceRefs = useRef(new Map<PageId, HTMLAnchorElement>());
   const returnTo = useRef<HTMLElement | null>(null);
   const board = useRef<HTMLElement>(null);
+  const keyed = useRef(false); // the envelope was opened from the keyboard
 
   // While the board can be laid out by hand (ARRANGING), where things have been dragged to on the live
   // site, which is the same for everyone. Otherwise everything lies where it's set out above.
@@ -292,6 +304,13 @@ export default function Invitation({ children }: { children: ReactNode }) {
     returnTo.current = null;
   }, [shown]);
 
+  // The envelope goes once it's open, so focus moves on to the first piece rather than being lost.
+  useEffect(() => {
+    if (stage !== "table" || !keyed.current) return;
+    keyed.current = false;
+    pieceRefs.current.get(pieces[0].id)?.focus({ preventScroll: true });
+  }, [stage]);
+
   const envelopeShown = () => whenIdle(() => {
     fetchFonts();
     setWarm(true);
@@ -299,7 +318,12 @@ export default function Invitation({ children }: { children: ReactNode }) {
 
   const openEnvelope = () => {
     if (stage !== "envelope" || timer.current) return; // already opening
-    if (reducedMotion()) return setStage("table");
+    keyed.current = document.activeElement?.matches(".gate-envelope:focus-visible") ?? false;
+    if (reducedMotion()) {
+      setStage("table");
+      window.scrollTo({ top: 0, behavior: "instant" });
+      return;
+    }
     setStage("opening");
     setVeil("in");
     timer.current = window.setTimeout(() => {
@@ -352,19 +376,29 @@ export default function Invitation({ children }: { children: ReactNode }) {
       if (!held && at <= 0) at = box.scrollLeft = box.scrollWidth / 2;
       rest();
     };
+    // A finger is followed by its touch events: its pointer is cancelled as soon as the browser takes
+    // the swipe over, while the finger is still down.
     const hold = () => { held = true; };
-    const letGo = () => { held = false; };
+    const letGo = (event: PointerEvent | TouchEvent) => {
+      if ("touches" in event ? event.touches.length === 0 : event.pointerType !== "touch") held = false;
+    };
     box.addEventListener("scroll", scrolled, { passive: true });
     box.addEventListener("pointerdown", hold);
+    box.addEventListener("touchstart", hold, { passive: true });
     window.addEventListener("pointerup", letGo);
     window.addEventListener("pointercancel", letGo);
+    window.addEventListener("touchend", letGo);
+    window.addEventListener("touchcancel", letGo);
     frame = requestAnimationFrame(glide);
     return () => {
       cancelAnimationFrame(frame);
       box.removeEventListener("scroll", scrolled);
       box.removeEventListener("pointerdown", hold);
+      box.removeEventListener("touchstart", hold);
       window.removeEventListener("pointerup", letGo);
       window.removeEventListener("pointercancel", letGo);
+      window.removeEventListener("touchend", letGo);
+      window.removeEventListener("touchcancel", letGo);
       nudge(0);
     };
   }, [stage]);
@@ -380,6 +414,7 @@ export default function Invitation({ children }: { children: ReactNode }) {
   // Links between pages (the RSVP button under the date) swap one page for the other.
   useEffect(() => {
     const follow = (event: globalThis.MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href^="#"]') : null;
       const id = link?.getAttribute("href")?.slice(1) ?? "";
       if (!link || !isPage(id) || !sheet.current?.contains(link)) return;

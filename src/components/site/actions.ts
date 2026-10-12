@@ -17,7 +17,9 @@ const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
 async function forward(endpoint: string, payload: Record<string, unknown>) {
   try {
-    const response = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...payload, secret: process.env.RSVP_WEBHOOK_SECRET ?? "" }) });
+    // Not waited on forever: once it's saved, a slow script mustn't hold the guest up until the request
+    // times out and they're told it failed (and send it again).
+    const response = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...payload, secret: process.env.RSVP_WEBHOOK_SECRET ?? "" }), signal: AbortSignal.timeout(10_000) });
     if (!response.ok) throw new Error(`Webhook responded ${response.status}`);
     const result = await response.json().catch(() => ({ ok: true }));
     if (result.ok === false) throw new Error(`Webhook refused: ${result.error ?? "unknown"}`);
