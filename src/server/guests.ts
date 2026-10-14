@@ -18,7 +18,7 @@ export const guests: string[] = [
   // Walker, Meese & friends
   "Madison Walker", "Stacey Walker",
   "Jeff Meese", "Oliver Meese", "Lorelei Meese",
-  "Addilyn Walker", "Steven Walker + guest",
+  "Addilyn Walker", "Steven F Walker", "Steven A Walker + guest",
   "Kait Grundy", "Kenny Grundy",
   "Sunny Kim",
   "Grace Wittrock",
