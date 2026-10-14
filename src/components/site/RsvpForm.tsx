@@ -141,12 +141,12 @@ export default function RsvpForm() {
               <span>Regretfully declines</span>
             </label>
           </div>
-          {person.plusOne && answers[person.id] === "yes" && (
-            <label className="field">
-              <span className="field-hint">{person.name.split(" ")[0]}’s guest</span>
+          {answers[person.id] === "yes" && Array.from({ length: person.guests }, (_, n) => (
+            <label key={n} className="field">
+              <span className="field-hint">{person.name.split(" ")[0]}’s {person.guests > 1 ? `${n ? "second" : "first"} guest` : "guest"}</span>
               <input name={`guest-${person.id}`} autoComplete="off" placeholder="Their full name, or leave blank" />
             </label>
-          )}
+          ))}
           {error(`attending-${person.id}`)}
         </fieldset>
       ))}

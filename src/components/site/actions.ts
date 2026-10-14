@@ -59,7 +59,7 @@ export type RsvpState =
 const PHOTO_LIMIT = 5 * 1024 * 1024; // the browser shrinks photos first, so this only catches the odd one it couldn't
 
 // One RSVP covers everyone the guest picked from the list: whether each is coming, and the name of the
-// guest anyone with a plus one is bringing.
+// guests anyone with a plus one (or two) is bringing.
 export async function submitRsvp(_previous: RsvpState, data: FormData): Promise<RsvpState> {
   const ids = [...new Set(data.getAll("person").map(String))].slice(0, 20);
   const people = ids.map(personById);
@@ -78,10 +78,11 @@ export async function submitRsvp(_previous: RsvpState, data: FormData): Promise<
   if (Object.keys(fields).length) return { status: "error", message: "Just a couple of things to fill in.", fields };
   if (text(data, "website")) return { status: "sent", attending: true }; // the hidden field only bots fill in
 
-  const guests = replies.flatMap(({ person, attending }) => {
-    const name = person.plusOne && attending === "yes" ? text(data, `guest-${person.id}`, 120) : "";
-    return name ? [{ guest: name, attending, plusOneOf: person.name }] : [];
-  });
+  const guests = replies.flatMap(({ person, attending }) => attending !== "yes" ? [] : data.getAll(`guest-${person.id}`)
+    .slice(0, person.guests)
+    .map(value => String(value).trim().slice(0, 120))
+    .filter(Boolean)
+    .map(name => ({ guest: name, attending, plusOneOf: person.name })));
   const attending = replies.some(reply => reply.attending === "yes");
   const rsvp = {
     type: "rsvp",

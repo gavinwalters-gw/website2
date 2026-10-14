@@ -1,9 +1,9 @@
 import { guests } from "./guests";
 
-// The guest list as people the RSVP page can find: each with a stable id, whether they may bring a guest,
+// The guest list as people the RSVP page can find: each with a stable id, how many guests they may bring,
 // and who else on the list shares their last name.
 
-export type Person = { id: string; name: string; plusOne: boolean };
+export type Person = { id: string; name: string; guests: number };
 export type Match = Person & { family: Person[] };
 
 // Names compare without case, accents or punctuation: "o'neil" finds "Brennen O’Neil".
@@ -11,11 +11,12 @@ const words = (name: string) => name.normalize("NFD").replace(/[\u0300-\u036f]/g
 
 const taken = new Set<string>();
 const everyone = guests.map(entry => {
-  const name = entry.replace(/\s*\+\s*guest$/i, "");
+  const extra = entry.match(/\s*\+\s*(?:(\d)\s+)?guests?$/i);
+  const name = extra ? entry.slice(0, extra.index) : entry;
   let id = words(name).join("-");
   for (let n = 2; taken.has(id); n++) id = `${words(name).join("-")}-${n}`;
   taken.add(id);
-  return { person: { id, name, plusOne: name !== entry }, words: words(name) };
+  return { person: { id, name, guests: extra ? Number(extra[1] ?? 1) : 0 }, words: words(name) };
 });
 // Only a real surname counts: "Aunt Renee" and "Dakota" have no family to offer.
 const lastName = (entry: (typeof everyone)[number]) => entry.words.length > 1 && !/^(aunt|uncle)$/.test(entry.words[0]) ? entry.words.at(-1) : undefined;
