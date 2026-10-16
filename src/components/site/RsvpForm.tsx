@@ -1,7 +1,10 @@
 "use client";
 
 import { startTransition, useActionState, useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import Image from "next/image";
 import { contactEmail } from "@/content/wedding";
+import bangChan from "@/content/photos/bang-chan.webp";
+import pDiddy from "@/content/photos/p-diddy.webp";
 import type { Match, Person } from "@/server/guestList";
 import { submitRsvp, type RsvpState } from "./actions";
 
@@ -156,6 +159,19 @@ export default function RsvpForm() {
               ))}
             </>
           )}
+          {/* A joke for the bride: her plus one is already filled in. It's only shown, never sent. */}
+          {person.id === "madison-walker" && answers[person.id] !== "no" && (
+            <div className="guest-dream">
+              <Image src={bangChan} alt="Bang Chan" width={56} height={56} />
+              <p><span className="field-hint">Madison’s guest</span> Bang Chan of Stray Kids <em>(you wish)</em></p>
+            </div>
+          )}
+          {person.id === "madison-walker" && answers[person.id] !== "no" && (
+            <div className="guest-dream">
+              <Image src={pDiddy} alt="P. Diddy" width={56} height={56} />
+              <p><span className="field-hint">Real guest</span> P. Diddy</p>
+            </div>
+          )}
           {error(`attending-${person.id}`)}
         </fieldset>
       ))}
@@ -163,8 +179,14 @@ export default function RsvpForm() {
       {people.length > 0 && (
         <>
           <label className="field">
-            <span className="field-label">Email</span>
-            <input name="email" type="email" autoComplete="email" inputMode="email" required {...described("email")} />
+            <span className="field-label">Phone</span>
+            <input name="phone" type="tel" autoComplete="tel" inputMode="tel" required {...described("phone")} />
+            {error("phone")}
+          </label>
+
+          <label className="field">
+            <span className="field-label">Email <span className="field-hint">(optional)</span></span>
+            <input name="email" type="email" autoComplete="email" inputMode="email" {...described("email")} />
             {error("email")}
           </label>
 
