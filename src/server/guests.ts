@@ -13,7 +13,7 @@ export const guests: string[] = [
   "Denise Hayes", "Lily Hayes + guest", "Rosco Hayes", "Zosha Hayes",
   "Lori Sutton", "Dean Sutton", "Michael Sutton", "Madeline Templeton",
   "Anna Sutton", "Brennan Grego", "Timothy Grego",
-  "Lisa Stempian", "Marvin Stempien", "Corinne Stempien",
+  "Lisa Stempien", "Marvin Stempien", "Corinne Stempien",
 
   // Walker, Meese & friends
   "Madison Walker", "Stacey Walker",
@@ -67,8 +67,8 @@ export const guests: string[] = [
   "Dave Allevato", "Belinda Allevato", "Phil Allevato",
   "Connie Wilkins",
   "Sharon Duchi", "Tony Duchi", "Justin Duchi", "Anna Duchi",
-  "Chris Stempien", "Mitchell Stempien + guest", "Claire Stempien", "Christopher Stempien",
-  "Lynne Schebowich", "Joel Schebowich", "Michelle Shebowich + guest", "Karen Shebowich", "Michael Shebowich",
+  "Mitchell Stempien + guest", "Claire Stempien", "Christopher Stempien",
+  "Lynne Schebowich", "Joel Schebowich", "Michelle Shebowich", "Matt Emmett", "Karen Shebowich", "Michael Shebowich",
   "Tammy Figurski", "Jennifer Everett",
   "Kelli Figurski", "Rob Acuff",
   "Cheryl Figurski Buff", "Ronnie Buff",
