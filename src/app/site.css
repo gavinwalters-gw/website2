@@ -158,7 +158,9 @@ html:has(.sheet:not([hidden])) :is(.piece img, .decor img) { animation-play-stat
 /* ---------- The pages ---------- */
 /* A sheet of paper over the table, scrolling on its own. It grows out of the piece that opened it (the
    script clips it from the piece's outline to the full screen). */
-html:has(.sheet:not([hidden])) { overflow: hidden; }
+/* Chrome on a Mac takes a sideways two-finger swipe as Back, which closed a page as a guest rested two
+   fingers on the trackpad; the close button and the back button still close it. */
+html:has(.sheet:not([hidden])) { overflow: hidden; overscroll-behavior-x: none; }
 .sheet { position: fixed; inset: 0; z-index: 50; overflow-y: auto; overscroll-behavior: contain; background: var(--paper) var(--noise); }
 .sheet[hidden] { display: none; }
 .page { display: none; }

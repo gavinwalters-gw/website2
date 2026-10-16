@@ -162,39 +162,51 @@ declare global { interface Window { envelopeTapped?: boolean } }
 // the next time anything changed, and one that brought it back would leave the table ignoring every tap.
 const isPage = (id: string): id is PageId => pieces.some(piece => piece.id === id);
 const fromAddress = () => {
-  const id = decodeURIComponent(window.location.hash.slice(1));
+  let id = "";
+  try {
+    id = decodeURIComponent(window.location.hash.slice(1));
+  } catch {} // a mangled address (/#%E0) opens nothing rather than taking down the site
   return isPage(id) ? id : null;
 };
 let open: PageId | null | undefined; // not yet read from the address
 const currentPage = () => (open === undefined ? (open = fromAddress()) : open);
 const listeners = new Set<() => void>();
+const notifyAll = () => listeners.forEach(notify => notify());
+// Going back or forward fires both popstate and hashchange; the second finds nothing new to say.
+const moved = () => {
+  const page = fromAddress();
+  if (page === open) return;
+  open = page;
+  notifyAll();
+};
 const watchPage = (onChange: () => void) => {
-  const moved = () => {
-    open = fromAddress();
-    onChange();
-  };
+  if (!listeners.size) {
+    window.addEventListener("popstate", moved);
+    window.addEventListener("hashchange", moved);
+  }
   listeners.add(onChange);
-  window.addEventListener("popstate", moved);
-  window.addEventListener("hashchange", moved);
   return () => {
     listeners.delete(onChange);
+    if (listeners.size) return;
     window.removeEventListener("popstate", moved);
     window.removeEventListener("hashchange", moved);
   };
 };
 // Opening a page from the table adds a history entry marked as such; moving between pages replaces it,
-// so closing always lands back on the table.
+// so closing always lands back on the table. The mark names this visit, because history survives a
+// reload: stepping back from a page opened before one would load the site afresh, envelope and all.
+const VISIT = Math.random().toString(36).slice(2);
 const go = (page: PageId | null, how: "push" | "replace") => {
   open = page;
   const url = page ? `#${page}` : window.location.pathname + window.location.search;
-  if (how === "push") window.history.pushState({ fromTable: true }, "", url);
+  if (how === "push") window.history.pushState({ fromTable: VISIT }, "", url);
   else window.history.replaceState(window.history.state, "", url);
-  listeners.forEach(notify => notify());
+  notifyAll();
 };
 
 // Closing steps back to the table's history entry when there is one, so forward reopens the page.
 const close = () => {
-  if (window.history.state?.fromTable) window.history.back();
+  if (window.history.state?.fromTable === VISIT) window.history.back();
   else go(null, "replace");
 };
 
@@ -202,6 +214,18 @@ const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)"
 const EASE = "cubic-bezier(.2, .8, .2, 1)";
 const GROW = "cubic-bezier(.45, 0, .1, 1)"; // eases out of the piece as well as into the screen, so the growth reads
 const WASH_IN = 750; // how long the screen takes to wash to white after the envelope is tapped
+
+// The opening plays on the browser's own clock, which stops while it's busy or the tab is hidden. Held up
+// partway, the page would sit there unseen over the table, keeping it from being tapped; so once the
+// opening should have ended, whatever is left of it is finished off. Returns a cleanup for the effect.
+const finishLate = (...boxes: (Element | null)[]) => {
+  const ours = boxes
+    .flatMap(box => box?.getAnimations({ subtree: true }) ?? [])
+    .filter(animation => !(animation instanceof CSSAnimation || animation instanceof CSSTransition));
+  const end = Math.max(0, ...ours.map(animation => Number(animation.effect?.getComputedTiming().endTime ?? 0)));
+  const timer = window.setTimeout(() => ours.forEach(animation => animation.finish()), end + 300);
+  return () => window.clearTimeout(timer);
+};
 
 // The scalloped edge of the close badge, like the lace on the Save the Date heart.
 const SCALLOP = "M32 8A6.71 6.71 0 0 1 44 11.22A6.71 6.71 0 0 1 52.78 20A6.71 6.71 0 0 1 56 32A6.71 6.71 0 0 1 52.78 44A6.71 6.71 0 0 1 44 52.78A6.71 6.71 0 0 1 32 56A6.71 6.71 0 0 1 20 52.78A6.71 6.71 0 0 1 11.22 44A6.71 6.71 0 0 1 8 32A6.71 6.71 0 0 1 11.22 20A6.71 6.71 0 0 1 20 11.22A6.71 6.71 0 0 1 32 8Z";
@@ -241,9 +265,9 @@ function growFromEnvelope(fx: HTMLDivElement, box: HTMLElement, body: HTMLElemen
     [{ opacity: 0, transform: "translateY(22px)" }, { opacity: 1, transform: "none" }],
     { duration: 520, delay: 1800, easing: EASE, fill: "backwards" },
   );
-  grow.onfinish = () => fx.removeAttribute("data-playing");
+  // The promise, not the finish event: that waits for the next frame, which a stalled clock never brings.
+  grow.finished.then(() => fx.removeAttribute("data-playing"), () => {}); // cancelled: the cleanup sees to it
   return () => {
-    grow.onfinish = null;
     fx.getAnimations({ subtree: true }).forEach(animation => animation.cancel());
     fx.removeAttribute("data-playing");
   };
@@ -479,7 +503,14 @@ export default function Invitation({ children }: { children: ReactNode }) {
     const from = origin.current === shown && piece ? piece : null;
     origin.current = null;
     if (still) return;
-    if (from && fx && shown === "rsvp") return growFromEnvelope(fx, box, body, from);
+    if (from && fx && shown === "rsvp") {
+      const stop = growFromEnvelope(fx, box, body, from);
+      const late = finishLate(box, fx);
+      return () => {
+        late();
+        stop();
+      };
+    }
     if (from) {
       box.animate(
         [{ clipPath: outline(), opacity: 0 }, { opacity: 1, offset: 0.25 }, { clipPath: "inset(0 round 0)", opacity: 1 }],
@@ -490,6 +521,7 @@ export default function Invitation({ children }: { children: ReactNode }) {
       [{ opacity: 0, transform: "translateY(22px)" }, { opacity: 1, transform: "none" }],
       { duration: 520, delay: from ? 420 : 0, easing: EASE, fill: "backwards" },
     );
+    return finishLate(box);
   }, [shown, leaving]);
 
   return (
