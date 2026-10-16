@@ -22,7 +22,7 @@
 
 const NOTIFY = "g.a.walterswedding@gmail.com";
 const PHOTO_FOLDER = "Wedding RSVP photos";
-const HEADERS = ["Received", "Invitation", "Guest", "Attending", "Plus one of", "Email", "Dietary", "Wedding song", "Wedding photo", "Note"];
+const HEADERS = ["Received", "Invitation", "Guest", "Attending", "Plus one of", "Email", "Dietary", "Wedding song", "Wedding photo", "Note", "Phone"];
 
 function doPost(e) {
   try {
@@ -47,7 +47,7 @@ function saveRsvp(data) {
     const photo = data.photo ? savePhoto(data) : "";
     const received = new Date(data.receivedAt || Date.now());
     data.replies.forEach(guest => {
-      sheet.appendRow([received, data.invitation, guest.guest, guest.attending === "yes" ? "Yes" : "No", guest.plusOneOf || "", data.email, data.dietary, data.song, photo, data.note]);
+      sheet.appendRow([received, data.invitation, guest.guest, guest.attending === "yes" ? "Yes" : "No", guest.plusOneOf || "", data.email, data.dietary, data.song, photo, data.note, data.phone || ""]);
     });
   } finally {
     lock.releaseLock();
@@ -55,9 +55,9 @@ function saveRsvp(data) {
   const lines = data.replies.map(guest => `${guest.guest}: ${guest.attending === "yes" ? "coming" : "not coming"}${guest.plusOneOf ? " (plus one)" : ""}`);
   MailApp.sendEmail({
     to: NOTIFY,
-    replyTo: data.email,
+    ...(data.email ? { replyTo: data.email } : {}), // email is optional; the phone number is in the body
     subject: `RSVP: ${data.invitation}`,
-    body: [...lines, "", data.dietary && `Dietary: ${data.dietary}`, data.song && `Wedding song: ${data.song}`, data.note && `Note: ${data.note}`, data.photo ? "They sent a wedding photo (linked in the sheet)." : ""].filter(Boolean).join("\n"),
+    body: [...lines, "", `Phone: ${data.phone}`, data.email && `Email: ${data.email}`, data.dietary && `Dietary: ${data.dietary}`, data.song && `Wedding song: ${data.song}`, data.note && `Note: ${data.note}`, data.photo ? "They sent a wedding photo (linked in the sheet)." : ""].filter(Boolean).join("\n"),
   });
 }
 

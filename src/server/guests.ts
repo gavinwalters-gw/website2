@@ -51,8 +51,8 @@ export const guests: string[] = [
   "Kayla Pendley + guest",
 
   // Dumouchelle, Maulbetsch & Roush
-  "Bob Dumouchelle", "Lisa Dumouchelle", "Danny Dumouchelle", "Ava Lianos", "Alex Dumouchelle", "Amanda Dumouchelle", "Noah",
-  "Courtney Dumouchelle", "Oliver Dumouchelle", "Will Dumouchelle + guest",
+  "Bob Dumouchelle", "Lisa Dumouchelle", "Danny Dumouchelle", "Ava Lianos", "Alex Dumouchelle", "Amanda Dumouchelle", "Noah Moskal",
+  "Courtney Dumouchelle", "Oliver Dumouchelle", "Will Dumouchelle", "Janet Allen",
   "Sara Maulbetsch", "Andy Maulbetsch", "Tiffani Maulbetsch", "Kayci Maulbetsch",
   "Dan Roush", "Angie Roush", "Jake Roush", "Madison Roush",
   "Brennen O’Neil",

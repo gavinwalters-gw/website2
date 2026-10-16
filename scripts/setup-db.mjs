@@ -20,6 +20,10 @@ await sql`create table if not exists rsvps (
   photo_type text,
   photo bytea
 )`;
+// Added after the first RSVPs could come in, so these change a table that may already be there: the
+// phone number became what's asked for, and email optional.
+await sql`alter table rsvps add column if not exists phone text`;
+await sql`alter table rsvps alter column email drop not null`;
 
 await sql`create table if not exists questions (
   id bigserial primary key,
@@ -38,10 +42,11 @@ await sql`create table if not exists board_arrangement (
   updated_at timestamptz not null default now()
 )`;
 
-// One row per guest, which is the list to count heads from.
+// One row per guest, which is the list to count heads from. (Phone comes last: a view can only gain columns
+// at the end.)
 await sql`create or replace view rsvp_guests as
   select r.id as rsvp, reply->>'guest' as guest, reply->>'attending' = 'yes' as attending,
-         reply->>'plusOneOf' as plus_one_of, r.email, r.dietary, r.received_at
+         reply->>'plusOneOf' as plus_one_of, r.email, r.dietary, r.received_at, r.phone
   from rsvps r, jsonb_array_elements(r.replies) reply`;
 
 console.log("Tables ready: rsvps, questions, board_arrangement, and the rsvp_guests view.");

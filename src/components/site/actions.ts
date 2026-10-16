@@ -69,8 +69,12 @@ export async function submitRsvp(_previous: RsvpState, data: FormData): Promise<
   const fields: Record<string, string> = {};
   const replies = people.map(person => ({ person: person!, attending: text(data, `attending-${person!.id}`) }));
   replies.forEach(({ person, attending }) => { if (attending !== "yes" && attending !== "no") fields[`attending-${person.id}`] = `Please let us know if ${person.name.split(" ")[0]} can make it.`; });
-  const email = text(data, "email", 200);
-  if (!isEmail(email)) fields.email = "Please enter a valid email so we can reach you.";
+  const phone = text(data, "phone", 40);
+  const digits = phone.replace(/\D/g, "").length;
+  if (!phone) fields.phone = "Please enter a phone number so we can reach you.";
+  else if (digits < 7 || digits > 15 || /[^\d\s()+.-]/.test(phone)) fields.phone = "Please check that phone number.";
+  const email = text(data, "email", 200); // optional, but if it's there it should be one we can write to
+  if (email && !isEmail(email)) fields.email = "Please check that email, or leave it blank.";
 
   const file = data.get("photo");
   const photo = file instanceof File && file.size > 0 ? file : null;
@@ -89,6 +93,7 @@ export async function submitRsvp(_previous: RsvpState, data: FormData): Promise<
     invitation: people.map(person => person!.name).join(", "),
     replies: [...replies.map(({ person, attending }) => ({ guest: person.name, attending })), ...guests],
     email,
+    phone,
     dietary: text(data, "dietary"),
     song: text(data, "song", 200),
     note: text(data, "note", 1000),
@@ -96,8 +101,8 @@ export async function submitRsvp(_previous: RsvpState, data: FormData): Promise<
     receivedAt: new Date().toISOString(),
   };
   const sent = await keep(rsvp, db => db`
-    insert into rsvps (invitation, email, attending, replies, dietary, song, note, photo_name, photo_type, photo)
-    values (${rsvp.invitation}, ${email}, ${attending}, ${JSON.stringify(rsvp.replies)}::jsonb, ${rsvp.dietary || null},
+    insert into rsvps (invitation, email, phone, attending, replies, dietary, song, note, photo_name, photo_type, photo)
+    values (${rsvp.invitation}, ${email || null}, ${phone}, ${attending}, ${JSON.stringify(rsvp.replies)}::jsonb, ${rsvp.dietary || null},
       ${rsvp.song || null}, ${rsvp.note || null}, ${rsvp.photo?.name ?? null}, ${rsvp.photo?.type ?? null},
       decode(${rsvp.photo?.data ?? null}, 'base64'))`);
   if (!sent) return { status: "error", message: "We couldn’t save your RSVP just now. Please try again in a moment." };
