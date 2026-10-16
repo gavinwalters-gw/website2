@@ -50,20 +50,21 @@ export const driveTimes = [
   { from: "South Lyon", time: "1 hour", distance: "45 miles" },
 ];
 
-// The two of them: drifting as polaroids behind everything, and laid out on the Photos page.
-export const photos: { src: StaticImageData; alt: string }[] = [
+// The two of them: drifting as polaroids behind everything, and laid out on the Photos page. Each is
+// cropped square; `focus` moves the crop (object-position) where the middle would cut someone off.
+export const photos: { src: StaticImageData; alt: string; focus?: string }[] = [
   { src: romeGarden, alt: "Gavin and Ally smiling at each other in the sun under the trees in Rome" },
   { src: romeSteps, alt: "Ally, wearing the engagement ring, with arms around Gavin at the top of the Spanish Steps in Rome" },
   { src: ringPhoto, alt: "Ally’s hand, wearing the engagement ring, resting on Gavin’s shoulder" },
-  { src: withTheDog, alt: "Gavin and Ally sitting on a stone wall with their golden retriever" },
-  { src: silo, alt: "Gavin and Ally leaning together against an old concrete silo" },
+  { src: withTheDog, alt: "Gavin and Ally sitting on a stone wall with their golden retriever", focus: "50% 0%" },
+  { src: silo, alt: "Gavin and Ally leaning together against an old concrete silo", focus: "50% 75%" },
   { src: proposal, alt: "Gavin on one knee holding out the ring as Ally covers her face, on a terrace above the rooftops of Rome" },
   { src: romeStepsSitting, alt: "Gavin and Ally sitting together on the Spanish Steps below the church of Trinità dei Monti" },
   { src: romeStepsStanding, alt: "Gavin and Ally smiling at the foot of the Spanish Steps" },
-  { src: romeTerrace, alt: "Gavin holding Ally from behind in front of an orange building in Rome" },
+  { src: romeTerrace, alt: "Gavin holding Ally from behind in front of an orange building in Rome", focus: "50% 75%" },
   { src: parkWithDog, alt: "Gavin and Ally sitting on a stone wall under blossoming trees with their golden retriever" },
   { src: redbudWalk, alt: "Gavin and Ally walking hand in hand along a path under a pink redbud tree" },
-  { src: redbudLean, alt: "Ally leaning her head on Gavin’s arm and smiling under the redbud branches" },
+  { src: redbudLean, alt: "Ally leaning her head on Gavin’s arm and smiling under the redbud branches", focus: "50% 0%" },
   { src: tulipKiss, alt: "Gavin and Ally kissing beside a carousel, with tulips in the foreground" },
   { src: riverfront, alt: "Gavin and Ally holding each other and smiling by the river" },
 ];
@@ -107,15 +108,15 @@ export const hotel = {
   bookBy: "May 1, 2027",
 };
 
-export const weddingParty: { name: string; role: string; photo?: StaticImageData }[] = [
+export const weddingParty: { name: string; role: string; photo?: StaticImageData; focus?: string; fit?: boolean }[] = [
   { name: "Madison", role: "Maid of Honor", photo: madison },
-  { name: "Kait", role: "Matron of Honor", photo: kait },
+  { name: "Kait", role: "Matron of Honor", photo: kait, fit: true },
   { name: "Lorelei", role: "Bridesmaid", photo: lorelei },
   { name: "Sunny", role: "Bridesmaid", photo: sunny },
-  { name: "Grace", role: "Bridesmaid", photo: grace },
+  { name: "Grace", role: "Bridesmaid", photo: grace, focus: "50% 40%" },
   { name: "Olivia", role: "Bridesmaid", photo: olivia },
   { name: "Ashley", role: "Bridesmaid", photo: ashley },
-  { name: "Addilyn", role: "Junior Bridesmaid", photo: addilyn },
+  { name: "Addilyn", role: "Junior Bridesmaid", photo: addilyn, focus: "50% 60%" },
   { name: "Ivy", role: "Flower Girl" },
   { name: "Timothy", role: "Ring Bearer" },
 ];

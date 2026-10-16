@@ -155,11 +155,12 @@ const fetchFonts = () => document.fonts.forEach(face => { if (coversLatin(face.u
 // and the envelope opens as soon as it can.
 declare global { interface Window { envelopeTapped?: boolean } }
 
-// Which page is open lives in the address (/#rsvp), so the back button closes it and a link can open it.
-// But the address is Next's too: its router rewrites it from its own copy now and then, telling no one.
-// So the open page is kept here, and taken from the address only when the site loads or the guest goes
-// back or forward. Read afresh on every render, a rewrite that dropped the #page would close the page
-// the next time anything changed, and one that brought it back would leave the table ignoring every tap.
+// Which page is open is shown in the address (/#rsvp), so a link can open it and a reload keeps it. Only
+// the close button closes a page: not Escape, not a swipe, not the back button, so opening one adds no
+// history entry, and the address is read only when the site loads. That suits Next too, whose router
+// rewrites the address from its own copy now and then, telling no one: read afresh, a rewrite that
+// dropped the #page would close the page, and one that brought it back would leave the table ignoring
+// every tap.
 const isPage = (id: string): id is PageId => pieces.some(piece => piece.id === id);
 const fromAddress = () => {
   let id = "";
@@ -171,44 +172,16 @@ const fromAddress = () => {
 let open: PageId | null | undefined; // not yet read from the address
 const currentPage = () => (open === undefined ? (open = fromAddress()) : open);
 const listeners = new Set<() => void>();
-const notifyAll = () => listeners.forEach(notify => notify());
-// Going back or forward fires both popstate and hashchange; the second finds nothing new to say.
-const moved = () => {
-  const page = fromAddress();
-  if (page === open) return;
-  open = page;
-  notifyAll();
-};
 const watchPage = (onChange: () => void) => {
-  if (!listeners.size) {
-    window.addEventListener("popstate", moved);
-    window.addEventListener("hashchange", moved);
-  }
   listeners.add(onChange);
-  return () => {
-    listeners.delete(onChange);
-    if (listeners.size) return;
-    window.removeEventListener("popstate", moved);
-    window.removeEventListener("hashchange", moved);
-  };
+  return () => void listeners.delete(onChange);
 };
-// Opening a page from the table adds a history entry marked as such; moving between pages replaces it,
-// so closing always lands back on the table. The mark names this visit, because history survives a
-// reload: stepping back from a page opened before one would load the site afresh, envelope and all.
-const VISIT = Math.random().toString(36).slice(2);
-const go = (page: PageId | null, how: "push" | "replace") => {
+const go = (page: PageId | null) => {
   open = page;
-  const url = page ? `#${page}` : window.location.pathname + window.location.search;
-  if (how === "push") window.history.pushState({ fromTable: VISIT }, "", url);
-  else window.history.replaceState(window.history.state, "", url);
-  notifyAll();
+  window.history.replaceState(window.history.state, "", page ? `#${page}` : window.location.pathname + window.location.search);
+  listeners.forEach(notify => notify());
 };
-
-// Closing steps back to the table's history entry when there is one, so forward reopens the page.
-const close = () => {
-  if (window.history.state?.fromTable === VISIT) window.history.back();
-  else go(null, "replace");
-};
+const close = () => go(null);
 
 const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const EASE = "cubic-bezier(.2, .8, .2, 1)";
@@ -432,7 +405,7 @@ export default function Invitation({ children }: { children: ReactNode }) {
     event.preventDefault();
     if (currentPage()) return; // a second quick tap, landing before the page covers the table
     origin.current = id;
-    go(id, "push");
+    go(id);
   };
 
   // Links between pages (the RSVP button under the date) swap one page for the other.
@@ -443,18 +416,11 @@ export default function Invitation({ children }: { children: ReactNode }) {
       const id = link?.getAttribute("href")?.slice(1) ?? "";
       if (!link || !isPage(id) || !sheet.current?.contains(link)) return;
       event.preventDefault();
-      go(id, "replace");
+      go(id);
     };
     document.addEventListener("click", follow);
     return () => document.removeEventListener("click", follow);
   }, []);
-
-  useEffect(() => {
-    if (!shown || leaving) return;
-    const escape = (event: KeyboardEvent) => event.key === "Escape" && close();
-    window.addEventListener("keydown", escape);
-    return () => window.removeEventListener("keydown", escape);
-  }, [shown, leaving]);
 
   // The sheet grows out of the piece that was tapped and shrinks back into it, clipped to the piece's
   // outline. Moving between pages, or arriving by link, just fades the new page in.

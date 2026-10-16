@@ -184,7 +184,7 @@ export default function HomeSections() {
       <ul className="polaroid-wall">
         {photos.map((photo, i) => (
           <li key={i} className="polaroid">
-            <Image src={photo.src} alt={photo.alt} sizes="(min-width: 760px) 300px, 80vw" />
+            <Image src={photo.src} alt={photo.alt} sizes="(min-width: 760px) 300px, 80vw" style={{ objectPosition: photo.focus }} />
           </li>
         ))}
       </ul>
@@ -196,7 +196,12 @@ export default function HomeSections() {
       <ul className="polaroid-wall">
         {weddingParty.map(person => (
           <li key={person.name} className="polaroid">
-            {person.photo ? <Image src={person.photo} alt={person.name} sizes="(min-width: 760px) 240px, 42vw" /> : <span className="polaroid-empty" />}
+            {person.photo && person.fit ? (
+              <span className="polaroid-fit">
+                <Image src={person.photo} alt="" aria-hidden sizes="(min-width: 760px) 240px, 42vw" />
+                <Image src={person.photo} alt={person.name} sizes="(min-width: 760px) 240px, 42vw" />
+              </span>
+            ) : person.photo ? <Image src={person.photo} alt={person.name} sizes="(min-width: 760px) 240px, 42vw" style={{ objectPosition: person.focus }} /> : <span className="polaroid-empty" />}
             <span className="polaroid-caption">
               <span className="script">{person.name}</span>
               <span>{person.role}</span>

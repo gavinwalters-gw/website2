@@ -159,7 +159,7 @@ html:has(.sheet:not([hidden])) :is(.piece img, .decor img) { animation-play-stat
 /* A sheet of paper over the table, scrolling on its own. It grows out of the piece that opened it (the
    script clips it from the piece's outline to the full screen). */
 /* Chrome on a Mac takes a sideways two-finger swipe as Back, which closed a page as a guest rested two
-   fingers on the trackpad; the close button and the back button still close it. */
+   fingers on the trackpad. Only the close button closes a page, and a stray swipe shouldn't leave the site. */
 html:has(.sheet:not([hidden])) { overflow: hidden; overscroll-behavior-x: none; }
 .sheet { position: fixed; inset: 0; z-index: 50; overflow-y: auto; overscroll-behavior: contain; background: var(--paper) var(--noise); }
 .sheet[hidden] { display: none; }
@@ -247,6 +247,11 @@ html:has(.sheet:not([hidden])) { overflow: hidden; overscroll-behavior-x: none; 
 .polaroid-wall .polaroid:nth-child(3n + 2) { transform: rotate(2.5deg) translateY(8px); }
 .polaroid-wall .polaroid:nth-child(3n) { transform: rotate(-.5deg); }
 [data-page="party"] .polaroid img { object-position: 50% 25%; }
+/* A photo too narrow for the square (Kait's) is shown whole, over a blurred copy of itself. */
+.polaroid-fit { position: relative; display: block; aspect-ratio: 1; overflow: hidden; }
+.polaroid-fit img { position: absolute; inset: 0; height: 100%; }
+.polaroid-fit img:first-child { filter: blur(10px); transform: scale(1.2); }
+.polaroid-fit img:last-child { object-fit: contain; }
 .polaroid:has(.polaroid-caption) { padding-bottom: 5%; }
 .polaroid-empty { display: block; aspect-ratio: 1; background: #efe8da; box-shadow: inset 0 1px 3px #3c2d1e14; }
 .polaroid-caption { display: flex; flex-direction: column; align-items: center; padding-top: 6%; line-height: 1.2; text-align: center; }
