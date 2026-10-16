@@ -2,6 +2,7 @@
 
 import { startTransition, useActionState, useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import Image from "next/image";
+import { createPortal } from "react-dom";
 import { contactEmail } from "@/content/wedding";
 import bangChan from "@/content/photos/bang-chan.webp";
 import pDiddy from "@/content/photos/p-diddy.webp";
@@ -66,6 +67,7 @@ export default function RsvpForm() {
   const [preparing, setPreparing] = useState(false);
   const [people, setPeople] = useState<Match[]>([]);
   const [answers, setAnswers] = useState<Record<string, "yes" | "no">>({});
+  const [denied, setDenied] = useState(false);
   const errors = state.status === "error" ? state.fields ?? {} : {};
   const anyoneComing = people.some(person => answers[person.id] === "yes");
   const busy = preparing || sending;
@@ -136,7 +138,7 @@ export default function RsvpForm() {
           <button type="button" className="guest-remove" onClick={() => remove(person.id)} aria-label={`Remove ${person.name}`}>×</button>
           <div className="choice-row">
             <label className="choice">
-              <input type="radio" name={`attending-${person.id}`} value="yes" checked={answers[person.id] === "yes"} onChange={() => setAnswers({ ...answers, [person.id]: "yes" })} />
+              <input type="radio" name={`attending-${person.id}`} value="yes" checked={answers[person.id] === "yes"} onChange={() => { setAnswers({ ...answers, [person.id]: "yes" }); if (person.id === "madison-walker") setDenied(true); }} />
               <span>Joyfully accepts</span>
             </label>
             <label className="choice">
@@ -226,7 +228,34 @@ export default function RsvpForm() {
         </p>
       )}
       <button className="button" disabled={busy}>{busy ? "Sending…" : "Send RSVP"}</button>
+      {denied && <Denied onDone={() => setDenied(false)} />}
     </form>
+  );
+}
+
+// Another joke for the bride: accepting brings a gavel down on the screen. A tap, or a few seconds, clears it.
+function Denied({ onDone }: { onDone: () => void }) {
+  useEffect(() => {
+    const timer = setTimeout(onDone, 4000);
+    return () => clearTimeout(timer);
+  }, [onDone]);
+  return createPortal(
+    <div className="denied" role="alert" onClick={onDone}>
+      <svg className="denied-gavel" viewBox="0 0 200 200" aria-hidden="true">
+        <rect x="5" y="174" width="95" height="12" rx="3" fill="#4a2f1b" />
+        <rect x="15" y="162" width="75" height="14" rx="3" fill="#5a3b22" />
+        <g transform="translate(170 124)">
+          <g className="denied-swing">
+            <rect x="-110" y="-6" width="118" height="12" rx="6" fill="#8a5a33" />
+            <rect x="-140" y="-36" width="40" height="72" rx="8" fill="#6b4226" />
+            <rect x="-144" y="-28" width="48" height="8" rx="3" fill="#c9a24a" />
+            <rect x="-144" y="20" width="48" height="8" rx="3" fill="#c9a24a" />
+          </g>
+        </g>
+      </svg>
+      <p className="denied-word">Denied</p>
+    </div>,
+    document.body,
   );
 }
 
