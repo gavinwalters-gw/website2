@@ -27,19 +27,19 @@ export const guests: string[] = [
   "Alex Brymer + 2 guests", "Rachel Brymer", "Ivy Brymer",
   "Steven Shimko",
   "Nick Guillmette", "Cindy Guillmette", "Bill Guillmette",
-  "David Plait", "Kim Plait", "Ricky Plait", "Kara Plait", "Trisha Plait",
+  "David Plait", "Kim Plait", "Ricky Plait", "Kara Plait + guest", "Trisha Plait",
   "Pat Wright", "Tim Wright", "Tony Wright",
-  "Stephanie", "Calliegh Donovan",
+  "Stephanie Donovan", "Calliegh Donovan",
 
   // Redding
   "Preston Donovan",
-  "Michelle Redding", "Brian Redding", "Hunter Redding", "Kelsie Redding", "Avery Redding",
+  "Michelle Redding", "Brian Redding", "Hunter Redding", "Kelsey Redding", "Avery Redding",
   "Grayson Kelley",
   "Ashley Redding", "Scott Sterling", "Gracie Redding", "Cooper Redding",
 
   // Hunt, Kurzyniec & Canfield
   "Joyce Hunt", "Jerry Hunt",
-  "Cathy Kurzyniec", "Pete Kurzyniec", "Katelyn Kurzyniec + 2 guests", "Rebecca Kurzyniec", "Alexis Kurzyniec",
+  "Cathy Kurzyniec", "Pete Kurzyniec", "Katelyn Kurzyniec + 2 guests", "Rebecca Kurzyniec", "Alexis Kurzyniec + guest",
   "Ava Kurzyniec",
   "Robert Canfield", "Jessica Canfield",
   "Gavin Canfield",
@@ -51,7 +51,7 @@ export const guests: string[] = [
   "Kayla Pendley + guest",
 
   // Dumouchelle, Maulbetsch & Roush
-  "Bob Dumouchelle", "Lisa Dumouchelle", "Danny Dumouchelle + guest", "Alex Dumouchelle", "Amanda Dumouchelle", "Noah",
+  "Bob Dumouchelle", "Lisa Dumouchelle", "Danny Dumouchelle", "Ava Lianos", "Alex Dumouchelle", "Amanda Dumouchelle", "Noah",
   "Courtney Dumouchelle", "Oliver Dumouchelle", "Will Dumouchelle + guest",
   "Sara Maulbetsch", "Andy Maulbetsch", "Tiffani Maulbetsch", "Kayci Maulbetsch",
   "Dan Roush", "Angie Roush", "Jake Roush", "Madison Roush",

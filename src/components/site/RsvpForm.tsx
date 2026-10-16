@@ -141,12 +141,21 @@ export default function RsvpForm() {
               <span>Regretfully declines</span>
             </label>
           </div>
-          {answers[person.id] === "yes" && Array.from({ length: person.guests }, (_, n) => (
-            <label key={n} className="field">
-              <span className="field-hint">{person.name.split(" ")[0]}’s {person.guests > 1 ? `${n ? "second" : "first"} guest` : "guest"}</span>
-              <input name={`guest-${person.id}`} autoComplete="off" placeholder="Their full name, or leave blank" />
-            </label>
-          ))}
+          {/* Someone with a plus one is told how many as soon as they're picked, with a box for each name;
+              the boxes go if they decline. Nobody else sees anything about guests. */}
+          {person.guests > 0 && answers[person.id] !== "no" && (
+            <>
+              <p className="field-hint guest-allowance">
+                {person.name.split(" ")[0]} may bring {person.guests === 1 ? "a guest" : `${person.guests} guests`}
+              </p>
+              {Array.from({ length: person.guests }, (_, n) => (
+                <label key={n} className="field">
+                  <span className="field-hint">{person.name.split(" ")[0]}’s {person.guests > 1 ? `${n ? "second" : "first"} guest` : "guest"}</span>
+                  <input name={`guest-${person.id}`} autoComplete="off" placeholder="Their full name, or leave blank" />
+                </label>
+              ))}
+            </>
+          )}
           {error(`attending-${person.id}`)}
         </fieldset>
       ))}
