@@ -1,14 +1,17 @@
 "use server";
 
+import { after } from "next/server";
 import { sql } from "@/server/db";
 import { personById } from "@/server/guestList";
+import { textCouple } from "@/server/sms";
 
 // Everything guests send (RSVPs and questions) is saved to Postgres (src/server/db.ts; npm run db:setup
 // makes the tables). If RSVP_WEBHOOK_URL is set as well, it also goes as JSON to the Google Apps Script in
 // scripts/rsvp-webhook.gs, which can email the couple; RSVP_WEBHOOK_SECRET goes along so the script can
 // ignore anything else. The database is what counts: a webhook that fails then is only logged. With
 // neither set, development logs what was sent and production refuses it, so nothing a guest sends is
-// ever silently dropped.
+// ever silently dropped. Once it's kept, the couple also gets a text (src/server/sms.ts), sent after the
+// guest has their answer so Twilio never slows them down.
 
 type Db = NonNullable<typeof sql>;
 
@@ -106,6 +109,16 @@ export async function submitRsvp(_previous: RsvpState, data: FormData): Promise<
       ${rsvp.song || null}, ${rsvp.note || null}, ${rsvp.photo?.name ?? null}, ${rsvp.photo?.type ?? null},
       decode(${rsvp.photo?.data ?? null}, 'base64'))`);
   if (!sent) return { status: "error", message: "We couldn’t save your RSVP just now. Please try again in a moment." };
+  after(() => textCouple([
+    `RSVP: ${rsvp.invitation}`,
+    ...rsvp.replies.map(reply => `${reply.attending === "yes" ? "Yes" : "No"} - ${reply.guest}${"plusOneOf" in reply ? ` (with ${reply.plusOneOf})` : ""}`),
+    `Phone: ${phone}`,
+    email && `Email: ${email}`,
+    rsvp.dietary && `Dietary: ${rsvp.dietary}`,
+    rsvp.song && `Song: ${rsvp.song}`,
+    rsvp.note && `Note: ${rsvp.note}`,
+    rsvp.photo && "(sent a photo)",
+  ].filter(Boolean).join("\n")));
   return { status: "sent", attending };
 }
 
@@ -126,5 +139,7 @@ export async function askQuestion(_previous: QuestionState, data: FormData): Pro
   if (text(data, "website")) return { status: "sent" };
   const sent = await keep({ type: "question", ...question, receivedAt: new Date().toISOString() }, db => db`
     insert into questions (name, email, question) values (${question.name}, ${question.email}, ${question.question})`);
-  return sent ? { status: "sent" } : { status: "error", message: "We couldn’t send your question just now. Please try again in a moment." };
+  if (!sent) return { status: "error", message: "We couldn’t send your question just now. Please try again in a moment." };
+  after(() => textCouple(`Question from ${question.name} (${question.email}):\n${question.question}`));
+  return { status: "sent" };
 }
