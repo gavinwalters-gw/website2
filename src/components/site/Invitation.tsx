@@ -34,6 +34,7 @@ import romeTerrace from "@/content/photos/rome-terrace.webp";
 import redbudWalk from "@/content/photos/redbud-walk.webp";
 import tulipKiss from "@/content/photos/tulip-kiss.webp";
 import riverfront from "@/content/photos/riverfront.webp";
+import romeOverlook from "@/content/photos/rome-overlook.webp";
 import { guestMessage } from "@/content/wedding";
 import Polaroids from "./Polaroids";
 import { useArrange } from "./Arrange";
@@ -57,7 +58,7 @@ const title: { phone: Spot; wide: Spot } = { phone: [0.3, 1, 100, 0], wide: [1.8
 // It's this many times as wide as it is tall (the same as .banner in site.css), a little taller on phones.
 const banner: { phone: Spot; wide: Spot; photos: StaticImageData[] } = {
   phone: [1, 15.6, 98, 0], wide: [4, 12.6, 152, 0],
-  photos: [romeSteps, silo, cruwood, proposal, romeStepsSitting, redbudWalk, withTheDog],
+  photos: [romeOverlook, romeSteps, silo, cruwood, proposal, romeStepsSitting, redbudWalk, withTheDog],
 };
 const BANNER_RATIO = { phone: 3.2, wide: 148.5 / 38.4 };
 

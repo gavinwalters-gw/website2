@@ -16,6 +16,8 @@ import redbudLean from "./photos/redbud-lean.webp";
 import tulipKiss from "./photos/tulip-kiss.webp";
 import riverfront from "./photos/riverfront.webp";
 import comfortInn from "./photos/comfort-inn.webp";
+import romeOverlook from "./photos/rome-overlook.webp";
+import romeOverlookFriend from "./photos/rome-overlook-friend.webp";
 import kait from "./party/kait.webp";
 import madison from "./party/madison.webp";
 import lorelei from "./party/lorelei.webp";
@@ -53,6 +55,8 @@ export const driveTimes = [
 // The two of them: drifting as polaroids behind everything, and laid out on the Photos page. Each is
 // cropped square; `focus` moves the crop (object-position) where the middle would cut someone off.
 export const photos: { src: StaticImageData; alt: string; focus?: string }[] = [
+  { src: romeOverlook, alt: "Gavin and Ally hugging and smiling on a terrace above the rooftops of Rome, Ally showing her engagement ring" },
+  { src: romeOverlookFriend, alt: "Gavin and Ally with a friend at a railing above the rooftops of Rome, with St. Peter’s dome behind them", focus: "50% 30%" },
   { src: romeGarden, alt: "Gavin and Ally smiling at each other in the sun under the trees in Rome" },
   { src: romeSteps, alt: "Ally, wearing the engagement ring, with arms around Gavin at the top of the Spanish Steps in Rome" },
   { src: ringPhoto, alt: "Ally’s hand, wearing the engagement ring, resting on Gavin’s shoulder" },
