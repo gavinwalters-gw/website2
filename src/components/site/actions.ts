@@ -140,6 +140,6 @@ export async function askQuestion(_previous: QuestionState, data: FormData): Pro
   const sent = await keep({ type: "question", ...question, receivedAt: new Date().toISOString() }, db => db`
     insert into questions (name, email, question) values (${question.name}, ${question.email}, ${question.question})`);
   if (!sent) return { status: "error", message: "We couldn’t send your question just now. Please try again in a moment." };
-  after(() => textCouple(`Question from ${question.name} (${question.email}):\n${question.question}`));
+  after(() => textCouple(`question from ${question.name} (${question.email}):\n${question.question}`));
   return { status: "sent" };
 }

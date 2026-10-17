@@ -5,11 +5,12 @@
 // With any missing it does nothing. A text that fails is only logged: the database already has it.
 
 const LIMIT = 1200; // Twilio splits long texts into segments; past this they're more scroll than help
+const SIGN_OFF = "\nReply STOP to opt out."; // as the samples given for the number's toll-free verification (src/app/sms)
 
 export async function textCouple(body: string) {
   const { TWILIO_ACCOUNT_SID: sid, TWILIO_AUTH_TOKEN: token, TWILIO_PHONE_NUMBER: from, SMS_NOTIFY_TO: to } = process.env;
   if (!sid || !token || !from || !to) return;
-  const message = body.length > LIMIT ? `${body.slice(0, LIMIT - 1)}…` : body;
+  const message = `Walters Wedding ${body.length > LIMIT ? `${body.slice(0, LIMIT - 1)}…` : body}${SIGN_OFF}`;
   await Promise.all(to.split(",").map(number => number.trim()).filter(Boolean).map(async number => {
     try {
       const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
