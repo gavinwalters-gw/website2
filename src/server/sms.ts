@@ -8,12 +8,6 @@
 const LIMIT = 1200; // Twilio splits long texts into segments; past this they're more scroll than help
 const SIGN_OFF = "\nReply STOP to opt out."; // as the samples given for the number's toll-free verification (src/app/sms)
 
-// The number texts come from, as (888) 555-1234, read from the environment when the pages are built.
-export function textNumber() {
-  const digits = (process.env.TWILIO_PHONE_NUMBER ?? "").replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "");
-  return digits.length === 10 ? `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}` : undefined;
-}
-
 export async function textTo(numbers: string[], message: string) {
   const { TWILIO_ACCOUNT_SID: sid, TWILIO_AUTH_TOKEN: token, TWILIO_PHONE_NUMBER: from } = process.env;
   if (!sid || !token || !from) return;

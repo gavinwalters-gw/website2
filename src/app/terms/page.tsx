@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import PolicyPage, { CONTACT, alertNumber } from "@/components/site/PolicyPage";
+import PolicyPage, { CONTACT } from "@/components/site/PolicyPage";
+import { TEXT_NUMBER } from "@/content/texts";
 
 export const metadata: Metadata = { title: "Terms · Walters Wedding" };
 
@@ -24,7 +25,7 @@ export default function Terms() {
         <li>
           <strong>Program:</strong> Walters Wedding sends guests who opt in general texts about the wedding (RSVP
           reminders, schedule, venue, travel and hotel details, changes of plan, day-of reminders, and thank-yous), and tells the site&rsquo;s owner when a guest RSVPs or asks a question. Guests sign up by
-          texting WEDDING to {alertNumber()} and replying Y to confirm. Signing up is never needed to RSVP.{" "}
+          texting WEDDING to {TEXT_NUMBER} and replying Y to confirm. Signing up is never needed to RSVP.{" "}
           <Link href="/sms">More about the texts</Link>.
         </li>
         <li><strong>Frequency:</strong> up to 8 messages a month, ending after the wedding.</li>

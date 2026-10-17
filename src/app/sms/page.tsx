@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import PolicyPage, { CONTACT, alertNumber } from "@/components/site/PolicyPage";
-import { KEYWORD, KEYWORD_CONFIRMED, KEYWORD_WELCOME, invite } from "@/content/texts";
+import PolicyPage, { CONTACT } from "@/components/site/PolicyPage";
+import { INVITE, KEYWORD, KEYWORD_CONFIRMED, KEYWORD_WELCOME, TEXT_NUMBER } from "@/content/texts";
 
 export const metadata: Metadata = { title: "Text messages · Walters Wedding" };
 
 export default function Sms() {
-  const number = alertNumber();
   return (
     <PolicyPage title="Text messages">
       <h2>What they are</h2>
@@ -26,10 +25,10 @@ export default function Sms() {
 
       <h2>How to sign up</h2>
       <p>
-        Text <strong>{KEYWORD}</strong> to <strong>{number}</strong>. Guests are invited to after they RSVP on
+        Text <strong>{KEYWORD}</strong> to <strong>{TEXT_NUMBER}</strong>. Guests are invited to after they RSVP on
         walters.wedding, where they see:
       </p>
-      <blockquote>{invite(number)}</blockquote>
+      <blockquote>{INVITE}</blockquote>
       <p>Texting {KEYWORD} gets this reply:</p>
       <blockquote>{KEYWORD_WELCOME}</blockquote>
       <p>Replying <strong>Y</strong> confirms, and gets:</p>
