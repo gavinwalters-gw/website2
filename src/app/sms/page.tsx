@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PolicyPage, { CONTACT, alertNumber } from "@/components/site/PolicyPage";
-import { KEYWORD_CONFIRMED, KEYWORD_WELCOME, RSVP_CONSENT, RSVP_WELCOME } from "@/content/texts";
+import { KEYWORD, KEYWORD_CONFIRMED, KEYWORD_WELCOME, invite } from "@/content/texts";
 
 export const metadata: Metadata = { title: "Text messages · Walters Wedding" };
 
@@ -10,7 +10,7 @@ export default function Sms() {
   return (
     <PolicyPage title="Text messages">
       <h2>What they are</h2>
-      <p>Walters Wedding sends two kinds of texts, only to people who have asked for them:</p>
+      <p>Walters Wedding sends two kinds of texts, only to people who have signed up for them:</p>
       <ul>
         <li>
           <strong>Wedding texts for guests</strong>: general news and information about the wedding, such as RSVP
@@ -22,26 +22,23 @@ export default function Sms() {
           asks a question.
         </li>
       </ul>
-      <p>We never send marketing, and nothing is sent to anyone who hasn&rsquo;t opted in.</p>
+      <p>We never send marketing, and no one is texted without signing up by text first.</p>
 
-      <h2>How guests opt in: the RSVP form</h2>
+      <h2>How to sign up</h2>
       <p>
-        When guests RSVP at walters.wedding, they give a phone number. Below it is a checkbox, left unticked, and it
-        isn&rsquo;t needed to RSVP. Next to it:
+        Text <strong>{KEYWORD}</strong> to <strong>{number}</strong>. Guests are invited to after they RSVP on
+        walters.wedding, where they see:
       </p>
-      <blockquote>☐ {RSVP_CONSENT} Terms · Privacy</blockquote>
-      <p>Only guests who tick it get update texts. Straight after their RSVP they receive:</p>
-      <blockquote>{RSVP_WELCOME}</blockquote>
-
-      <h2>Or by text</h2>
-      <p>Text <strong>START</strong> to <strong>{number}</strong>. You&rsquo;ll get this reply:</p>
+      <blockquote>{invite(number)}</blockquote>
+      <p>Texting {KEYWORD} gets this reply:</p>
       <blockquote>{KEYWORD_WELCOME}</blockquote>
-      <p>Reply <strong>Y</strong> to confirm, and you&rsquo;ll get:</p>
+      <p>Replying <strong>Y</strong> confirms, and gets:</p>
       <blockquote>{KEYWORD_CONFIRMED}</blockquote>
+      <p>Nothing else is sent until someone has replied Y. Giving a phone number on the RSVP form does not sign anyone up.</p>
 
       <h2>What to expect</h2>
       <ul>
-        <li>Message frequency varies: a few texts a month leading up to the wedding (June 13, 2027), more in its final week, then none.</li>
+        <li>Up to 8 messages a month, fewer most months, ending after the wedding (June 13, 2027).</li>
         <li>Message and data rates may apply.</li>
         <li>Reply <strong>STOP</strong> at any time to stop all messages, and <strong>START</strong> to begin again.</li>
         <li>Reply <strong>HELP</strong> for help, or email <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.</li>

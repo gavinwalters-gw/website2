@@ -24,7 +24,7 @@ await sql`create table if not exists rsvps (
 // phone number became what's asked for, and email optional.
 await sql`alter table rsvps add column if not exists phone text`;
 await sql`alter table rsvps alter column email drop not null`;
-// Whether the guest ticked the box for wedding update texts, which is their consent to be texted.
+// Left from a checkbox on the RSVP form that's gone: guests now sign up for texts by texting in (below).
 await sql`alter table rsvps add column if not exists sms_opt_in boolean not null default false`;
 
 await sql`create table if not exists questions (
@@ -33,6 +33,15 @@ await sql`create table if not exists questions (
   name text not null,
   email text not null,
   question text not null
+)`;
+
+// Everyone who has texted WEDDING to the site's number (src/app/api/sms): "pending" until they reply Y,
+// then "subscribed", and "stopped" once they reply STOP. Wedding updates go to the subscribed.
+await sql`create table if not exists sms_subscribers (
+  phone text primary key,
+  status text not null check (status in ('pending', 'subscribed', 'stopped')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 )`;
 
 // Where things on the board have been dragged to and how big they've been made, one row for phones and
@@ -51,4 +60,4 @@ await sql`create or replace view rsvp_guests as
          reply->>'plusOneOf' as plus_one_of, r.email, r.dietary, r.received_at, r.phone, r.sms_opt_in
   from rsvps r, jsonb_array_elements(r.replies) reply`;
 
-console.log("Tables ready: rsvps, questions, board_arrangement, and the rsvp_guests view.");
+console.log("Tables ready: rsvps, questions, sms_subscribers, board_arrangement, and the rsvp_guests view.");

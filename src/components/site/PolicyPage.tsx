@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { textNumber } from "@/server/sms";
 
 // The plain pages Twilio’s toll-free verification asks for: how the texts are opted into (/sms),
 // their terms (/terms) and the site's privacy policy (/privacy). Paper and type as the rest of the site,
@@ -8,12 +9,7 @@ import type { ReactNode } from "react";
 export const CONTACT = "g.a.walterswedding@gmail.com";
 export const UPDATED = "October 17, 2026";
 
-// The number the alerts come from, as (888) 555-1234, read from the environment at build time so these
-// pages show whichever number the site is sending from.
-export function alertNumber() {
-  const digits = (process.env.TWILIO_PHONE_NUMBER ?? "").replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "");
-  return digits.length === 10 ? `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}` : "our alerts number";
-}
+export const alertNumber = () => textNumber() ?? "our texts number";
 
 export default function PolicyPage({ title, children }: { title: string; children: ReactNode }) {
   return (

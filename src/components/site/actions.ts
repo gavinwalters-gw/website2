@@ -3,8 +3,7 @@
 import { after } from "next/server";
 import { sql } from "@/server/db";
 import { personById } from "@/server/guestList";
-import { textCouple, textTo, toE164 } from "@/server/sms";
-import { RSVP_WELCOME } from "@/content/texts";
+import { textCouple } from "@/server/sms";
 
 // Everything guests send (RSVPs and questions) is saved to Postgres (src/server/db.ts; npm run db:setup
 // makes the tables). If RSVP_WEBHOOK_URL is set as well, it also goes as JSON to the Google Apps Script in
@@ -77,9 +76,6 @@ export async function submitRsvp(_previous: RsvpState, data: FormData): Promise<
   const digits = phone.replace(/\D/g, "").length;
   if (!phone) fields.phone = "Please enter a phone number so we can reach you.";
   else if (digits < 7 || digits > 15 || /[^\d\s()+.-]/.test(phone)) fields.phone = "Please check that phone number.";
-  // Wedding update texts only with the box ticked, and only to a number Twilio can text.
-  const updates = text(data, "sms") === "yes";
-  if (updates && phone && !fields.phone && !toE164(phone)) fields.phone = "Please include the area code (or +country code) so we can text this number.";
   const email = text(data, "email", 200); // optional, but if it's there it should be one we can write to
   if (email && !isEmail(email)) fields.email = "Please check that email, or leave it blank.";
 
@@ -101,7 +97,6 @@ export async function submitRsvp(_previous: RsvpState, data: FormData): Promise<
     replies: [...replies.map(({ person, attending }) => ({ guest: person.name, attending })), ...guests],
     email,
     phone,
-    updates,
     dietary: text(data, "dietary"),
     song: text(data, "song", 200),
     note: text(data, "note", 1000),
@@ -109,23 +104,21 @@ export async function submitRsvp(_previous: RsvpState, data: FormData): Promise<
     receivedAt: new Date().toISOString(),
   };
   const sent = await keep(rsvp, db => db`
-    insert into rsvps (invitation, email, phone, sms_opt_in, attending, replies, dietary, song, note, photo_name, photo_type, photo)
-    values (${rsvp.invitation}, ${email || null}, ${phone}, ${updates}, ${attending}, ${JSON.stringify(rsvp.replies)}::jsonb, ${rsvp.dietary || null},
+    insert into rsvps (invitation, email, phone, attending, replies, dietary, song, note, photo_name, photo_type, photo)
+    values (${rsvp.invitation}, ${email || null}, ${phone}, ${attending}, ${JSON.stringify(rsvp.replies)}::jsonb, ${rsvp.dietary || null},
       ${rsvp.song || null}, ${rsvp.note || null}, ${rsvp.photo?.name ?? null}, ${rsvp.photo?.type ?? null},
       decode(${rsvp.photo?.data ?? null}, 'base64'))`);
   if (!sent) return { status: "error", message: "We couldn’t save your RSVP just now. Please try again in a moment." };
   after(() => textCouple([
     `RSVP: ${rsvp.invitation}`,
     ...rsvp.replies.map(reply => `${reply.attending === "yes" ? "Yes" : "No"} - ${reply.guest}${"plusOneOf" in reply ? ` (with ${reply.plusOneOf})` : ""}`),
-    `Phone: ${phone}${updates ? " (wants update texts)" : ""}`,
+    `Phone: ${phone}`,
     email && `Email: ${email}`,
     rsvp.dietary && `Dietary: ${rsvp.dietary}`,
     rsvp.song && `Song: ${rsvp.song}`,
     rsvp.note && `Note: ${rsvp.note}`,
     rsvp.photo && "(sent a photo)",
   ].filter(Boolean).join("\n")));
-  const number = updates && toE164(phone);
-  if (number) after(() => textTo([number], RSVP_WELCOME));
   return { status: "sent", attending };
 }
 

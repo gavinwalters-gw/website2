@@ -16,19 +16,19 @@ export default function Privacy() {
       <ul>
         <li>
           <strong>RSVPs:</strong> the names in your party, whether each is coming, your phone number, and anything else you
-          choose to add: an email, dietary needs, a song request, a note, a photo, and whether you&rsquo;d like wedding update
-          texts.
+          choose to add: an email, dietary needs, a song request, a note, or a photo.
         </li>
         <li><strong>Questions:</strong> your name, email and question.</li>
+        <li><strong>Wedding texts:</strong> if you text WEDDING to sign up, your number and whether you&rsquo;re signed up.</li>
         <li>The site sets no tracking or advertising cookies.</li>
       </ul>
 
       <h2>How we use it</h2>
       <p>
         Only to plan the wedding and to reach you about it: the guest count, seating, meals, and answering your questions.
-        If you tick the box for wedding texts, we text you news and information about the wedding at that number until
-        you reply STOP. If
-        you don&rsquo;t, we only use your number to reach you personally about the wedding. When an RSVP or question
+        If you sign up for wedding texts by texting WEDDING, we text you news and information about the wedding until
+        you reply STOP. The number on your RSVP is never signed up; we only use it to reach you personally about the
+        wedding. When an RSVP or question
         arrives, its details are also texted to Gavin&rsquo;s own phone. More in <Link href="/sms">text messages</Link>.
       </p>
 

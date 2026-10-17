@@ -3,8 +3,7 @@
 import { startTransition, useActionState, useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import Image from "next/image";
 import { createPortal } from "react-dom";
-import Link from "next/link";
-import { RSVP_CONSENT } from "@/content/texts";
+import { invite } from "@/content/texts";
 import { contactEmail } from "@/content/wedding";
 import bangChan from "@/content/photos/bang-chan.webp";
 import pDiddy from "@/content/photos/p-diddy.webp";
@@ -64,7 +63,7 @@ async function shrink(file: File) {
 }
 
 // The guest finds their name, adds anyone else they're replying for, and answers for each of them.
-export default function RsvpForm() {
+export default function RsvpForm({ textNumber }: { textNumber?: string }) {
   const [state, reply, sending] = useActionState<RsvpState, FormData>(sendRsvp, { status: "idle" });
   const [preparing, setPreparing] = useState(false);
   const [people, setPeople] = useState<Match[]>([]);
@@ -80,6 +79,7 @@ export default function RsvpForm() {
       <div ref={thanks} className="rsvp-thanks" role="status" tabIndex={-1}>
         <p className="block-title">{state.attending ? "See you there!" : "You’ll be missed"}</p>
         <p>{state.attending ? "Thank you! We can’t wait to celebrate with you." : "Thank you for letting us know. We’ll be thinking of you on the day."}</p>
+        {state.attending && textNumber && <p className="quiet rsvp-texts">{invite(textNumber)}</p>}
       </div>
     );
   }
@@ -186,11 +186,6 @@ export default function RsvpForm() {
             <span className="field-label">Phone</span>
             <input name="phone" type="tel" autoComplete="tel" inputMode="tel" required {...described("phone")} />
             {error("phone")}
-          </label>
-
-          <label className="consent">
-            <input type="checkbox" name="sms" value="yes" />
-            <span>{RSVP_CONSENT} <Link href="/terms" target="_blank">Terms</Link> · <Link href="/privacy" target="_blank">Privacy</Link></span>
           </label>
 
           <label className="field">

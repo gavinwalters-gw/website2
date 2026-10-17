@@ -23,16 +23,16 @@ export default function Terms() {
       <ul>
         <li>
           <strong>Program:</strong> Walters Wedding sends guests who opt in general texts about the wedding (RSVP
-          reminders, schedule, venue, travel and hotel details, changes of plan, day-of reminders, and thank-yous), and tells the site&rsquo;s owner when a guest RSVPs or asks a question. Guests opt in by
-          ticking the box on the RSVP form, or by texting START to {alertNumber()}. Opting in is never needed to RSVP.{" "}
+          reminders, schedule, venue, travel and hotel details, changes of plan, day-of reminders, and thank-yous), and tells the site&rsquo;s owner when a guest RSVPs or asks a question. Guests sign up by
+          texting WEDDING to {alertNumber()} and replying Y to confirm. Signing up is never needed to RSVP.{" "}
           <Link href="/sms">More about the texts</Link>.
         </li>
-        <li><strong>Frequency:</strong> varies: a few texts a month before the wedding, more in its final week, then none.</li>
+        <li><strong>Frequency:</strong> up to 8 messages a month, ending after the wedding.</li>
         <li><strong>Cost:</strong> message and data rates may apply.</li>
         <li><strong>Opting out:</strong> reply STOP to any message to stop all messages. Reply START to resume.</li>
         <li><strong>Help:</strong> reply HELP, or email <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.</li>
         <li><strong>Carriers</strong> are not liable for delayed or undelivered messages.</li>
-        <li>We never send marketing, and never text anyone who hasn&rsquo;t opted in.</li>
+        <li>We never send marketing, and never text anyone who hasn&rsquo;t signed up.</li>
       </ul>
 
       <h2>Your information</h2>

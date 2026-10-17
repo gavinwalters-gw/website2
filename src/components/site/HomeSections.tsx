@@ -24,6 +24,7 @@ import { Illustration } from "./Icons";
 import Invitation, { type PageId } from "./Invitation";
 import QuestionForm from "./QuestionForm";
 import RsvpForm from "./RsvpForm";
+import { textNumber } from "@/server/sms";
 import { names } from "./Shared";
 
 // Each page's watercolour flower in the top corner, and the little drawing at the bottom (the dog peeking
@@ -174,7 +175,7 @@ export default function HomeSections() {
     <Page id="rsvp" title="Kindly RSVP">
       <section className="page-section">
         <p>We’d love to celebrate with you. Please reply by <span className="whitespace-nowrap">{rsvpDeadline}</span>.</p>
-        <RsvpForm />
+        <RsvpForm textNumber={textNumber()} />
       </section>
     </Page>
   );
