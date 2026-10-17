@@ -16,7 +16,8 @@ export default function Privacy() {
       <ul>
         <li>
           <strong>RSVPs:</strong> the names in your party, whether each is coming, your phone number, and anything else you
-          choose to add: an email, dietary needs, a song request, a note, or a photo.
+          choose to add: an email, dietary needs, a song request, a note, a photo, and whether you&rsquo;d like wedding update
+          texts.
         </li>
         <li><strong>Questions:</strong> your name, email and question.</li>
         <li>The site sets no tracking or advertising cookies.</li>
@@ -25,15 +26,16 @@ export default function Privacy() {
       <h2>How we use it</h2>
       <p>
         Only to plan the wedding and to reach you about it: the guest count, seating, meals, and answering your questions.
-        When an RSVP or question arrives, its details are texted to Gavin&rsquo;s own phone (see{" "}
-        <Link href="/sms">text alerts</Link>). We never text guests, and your phone number is only for us to call or text
-        you personally about the wedding.
+        If you tick the box for wedding texts, we text you news and information about the wedding at that number until
+        you reply STOP. If
+        you don&rsquo;t, we only use your number to reach you personally about the wedding. When an RSVP or question
+        arrives, its details are also texted to Gavin&rsquo;s own phone. More in <Link href="/sms">text messages</Link>.
       </p>
 
       <h2>Where it&rsquo;s kept</h2>
       <p>
         In a private database run by Neon, behind a site hosted by Vercel, and sometimes in a private Google spreadsheet
-        and our wedding email. Alerts are sent through Twilio. These services hold it only so we can use it as above.
+        and our wedding email. Texts are sent through Twilio. These services hold it only so we can use it as above.
       </p>
 
       <h2>Sharing</h2>

@@ -19,19 +19,20 @@ export default function Terms() {
         site when they do.
       </p>
 
-      <h2>Text alerts</h2>
+      <h2>Text messages</h2>
       <ul>
         <li>
-          <strong>Program:</strong> Walters Wedding text alerts tell the site&rsquo;s owner when a guest sends an RSVP or a
-          question. Only the owner receives them, after opting in by texting START to {alertNumber()}.{" "}
-          <Link href="/sms">More about the alerts</Link>.
+          <strong>Program:</strong> Walters Wedding sends guests who opt in general texts about the wedding (RSVP
+          reminders, schedule, venue, travel and hotel details, changes of plan, day-of reminders, and thank-yous), and tells the site&rsquo;s owner when a guest RSVPs or asks a question. Guests opt in by
+          ticking the box on the RSVP form, or by texting START to {alertNumber()}. Opting in is never needed to RSVP.{" "}
+          <Link href="/sms">More about the texts</Link>.
         </li>
-        <li><strong>Frequency:</strong> varies, usually a few messages a week, ending after the wedding.</li>
+        <li><strong>Frequency:</strong> varies: a few texts a month before the wedding, more in its final week, then none.</li>
         <li><strong>Cost:</strong> message and data rates may apply.</li>
         <li><strong>Opting out:</strong> reply STOP to any message to stop all messages. Reply START to resume.</li>
         <li><strong>Help:</strong> reply HELP, or email <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.</li>
         <li><strong>Carriers</strong> are not liable for delayed or undelivered messages.</li>
-        <li>We never text guests, and never use guests&rsquo; phone numbers for marketing.</li>
+        <li>We never send marketing, and never text anyone who hasn&rsquo;t opted in.</li>
       </ul>
 
       <h2>Your information</h2>

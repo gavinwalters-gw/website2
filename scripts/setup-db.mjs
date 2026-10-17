@@ -24,6 +24,8 @@ await sql`create table if not exists rsvps (
 // phone number became what's asked for, and email optional.
 await sql`alter table rsvps add column if not exists phone text`;
 await sql`alter table rsvps alter column email drop not null`;
+// Whether the guest ticked the box for wedding update texts, which is their consent to be texted.
+await sql`alter table rsvps add column if not exists sms_opt_in boolean not null default false`;
 
 await sql`create table if not exists questions (
   id bigserial primary key,
@@ -42,11 +44,11 @@ await sql`create table if not exists board_arrangement (
   updated_at timestamptz not null default now()
 )`;
 
-// One row per guest, which is the list to count heads from. (Phone comes last: a view can only gain columns
-// at the end.)
+// One row per guest, which is the list to count heads from. (Phone and texts come last: a view can only gain
+// columns at the end.)
 await sql`create or replace view rsvp_guests as
   select r.id as rsvp, reply->>'guest' as guest, reply->>'attending' = 'yes' as attending,
-         reply->>'plusOneOf' as plus_one_of, r.email, r.dietary, r.received_at, r.phone
+         reply->>'plusOneOf' as plus_one_of, r.email, r.dietary, r.received_at, r.phone, r.sms_opt_in
   from rsvps r, jsonb_array_elements(r.replies) reply`;
 
 console.log("Tables ready: rsvps, questions, board_arrangement, and the rsvp_guests view.");

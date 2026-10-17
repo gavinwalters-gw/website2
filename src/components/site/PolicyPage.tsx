@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-// The plain pages Twilio's toll-free verification asks for: how the text alerts are opted into (/sms),
+// The plain pages Twilio’s toll-free verification asks for: how the texts are opted into (/sms),
 // their terms (/terms) and the site's privacy policy (/privacy). Paper and type as the rest of the site,
 // nothing else.
 
@@ -24,7 +24,7 @@ export default function PolicyPage({ title, children }: { title: string; childre
         <p className="quiet">Last updated {UPDATED}</p>
         {children}
         <nav className="policy-links">
-          <Link href="/sms">Text alerts</Link>
+          <Link href="/sms">Text messages</Link>
           <Link href="/terms">Terms</Link>
           <Link href="/privacy">Privacy</Link>
         </nav>
