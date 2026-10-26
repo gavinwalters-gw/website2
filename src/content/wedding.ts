@@ -27,6 +27,7 @@ import ashley from "./party/ashley.webp";
 import addilyn from "./party/addilyn.webp";
 import oliver from "./party/oliver.webp";
 import james from "./party/james.webp";
+import chris from "./party/chris.webp";
 import owenDrake from "./party/owen-drake.webp";
 
 export const couple = {
@@ -131,6 +132,7 @@ export const groomsmen: { name: string; role: string; photo?: StaticImageData; f
   { name: "Owen & Drake", role: "Best Men", photo: owenDrake, focus: "50% 8%" },
   { name: "James", role: "Groomsman", photo: james, focus: "50% 10%" },
   { name: "Oliver", role: "Groomsman", photo: oliver, focus: "42% 20%" },
+  { name: "Chris", role: "Groomsman", photo: chris },
 ];
 
 export const thingsToDo = [
