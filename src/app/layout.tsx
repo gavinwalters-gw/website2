@@ -24,6 +24,7 @@ const display = localFont({ src: "./fonts/calgary.woff2", variable: "--font-disp
 const marker = Permanent_Marker({ weight: "400", subsets: ["latin"], variable: "--font-marker", preload: false });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://walters.wedding"),
   title: "Walters Wedding",
   description: "A little envelope. A lifetime of love. Open your invitation to Gavin & Ally’s wedding.",
 };
