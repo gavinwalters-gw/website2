@@ -1,6 +1,6 @@
 import Image, { type StaticImageData } from "next/image";
 import type { ReactNode } from "react";
-import { ceremonyTime, contactEmail, dressCode, driveTimes, formatDate, hotel, photos, registryUrl, rsvpDeadline, thingsToDo, timeline, venue, weddingParty } from "@/content/wedding";
+import { ceremonyTime, contactEmail, dressCode, driveTimes, formatDate, groomsmen, hotel, photos, registryUrl, rsvpDeadline, thingsToDo, timeline, venue, weddingParty } from "@/content/wedding";
 import flourish from "@/content/clipart/flourish.webp";
 import peekingDog from "@/content/clipart/peeking-dog.webp";
 import dogsDressed from "@/content/clipart/dogs-dressed.webp";
@@ -193,6 +193,13 @@ export default function HomeSections() {
 
   const party = (
     <Page id="party" title="The Wedding Party">
+      {/* Radios, so the two sides switch without any script. */}
+      <div className="party-tabs">
+        <input type="radio" name="party-side" id="party-bride" defaultChecked />
+        <label htmlFor="party-bride" className="script">Bridesmaids</label>
+        <input type="radio" name="party-side" id="party-groom" />
+        <label htmlFor="party-groom">Groomsmen</label>
+      </div>
       <ul className="polaroid-wall">
         {weddingParty.map(person => (
           <li key={person.name} className="polaroid">
@@ -206,6 +213,27 @@ export default function HomeSections() {
               <span className="script">{person.name}</span>
               <span>{person.role}</span>
             </span>
+          </li>
+        ))}
+      </ul>
+      <ul className="cardboard-wall">
+        {groomsmen.map(person => (
+          <li key={person.name} className="cardboard">
+            <span className="cardboard-slab">
+              <span className="cardboard-board">
+                {person.photo ? (
+                  <span className="cardboard-photo">
+                    <Image src={person.photo} alt={person.name} sizes="(min-width: 760px) 200px, 36vw" style={{ objectPosition: person.focus }} />
+                  </span>
+                ) : <span className="cardboard-empty">pic<br />TBD</span>}
+                <span className="cardboard-caption">
+                  <span>{person.name}</span>
+                  <span>{person.role}</span>
+                </span>
+              </span>
+            </span>
+            <span className="tape" />
+            <span className="tape" />
           </li>
         ))}
       </ul>

@@ -17,7 +17,6 @@ import tulipKiss from "./photos/tulip-kiss.webp";
 import riverfront from "./photos/riverfront.webp";
 import comfortInn from "./photos/comfort-inn.webp";
 import romeOverlook from "./photos/rome-overlook.webp";
-import romeOverlookFriend from "./photos/rome-overlook-friend.webp";
 import kait from "./party/kait.webp";
 import madison from "./party/madison.webp";
 import lorelei from "./party/lorelei.webp";
@@ -26,6 +25,9 @@ import grace from "./party/grace.webp";
 import olivia from "./party/olivia.webp";
 import ashley from "./party/ashley.webp";
 import addilyn from "./party/addilyn.webp";
+import oliver from "./party/oliver.webp";
+import james from "./party/james.webp";
+import owenDrake from "./party/owen-drake.webp";
 
 export const couple = {
   first: "Gavin",
@@ -56,7 +58,6 @@ export const driveTimes = [
 // cropped square; `focus` moves the crop (object-position) where the middle would cut someone off.
 export const photos: { src: StaticImageData; alt: string; focus?: string }[] = [
   { src: romeOverlook, alt: "Gavin and Ally hugging and smiling on a terrace above the rooftops of Rome, Ally showing her engagement ring" },
-  { src: romeOverlookFriend, alt: "Gavin and Ally with a friend at a railing above the rooftops of Rome, with St. Peter’s dome behind them", focus: "50% 30%" },
   { src: romeGarden, alt: "Gavin and Ally smiling at each other in the sun under the trees in Rome" },
   { src: romeSteps, alt: "Ally, wearing the engagement ring, with arms around Gavin at the top of the Spanish Steps in Rome" },
   { src: ringPhoto, alt: "Ally’s hand, wearing the engagement ring, resting on Gavin’s shoulder" },
@@ -123,6 +124,13 @@ export const weddingParty: { name: string; role: string; photo?: StaticImageData
   { name: "Addilyn", role: "Junior Bridesmaid", photo: addilyn, focus: "50% 60%" },
   { name: "Ivy", role: "Flower Girl" },
   { name: "Timothy", role: "Ring Bearer" },
+];
+
+// The groom's side, shown as marker on cardboard rather than polaroids.
+export const groomsmen: { name: string; role: string; photo?: StaticImageData; focus?: string }[] = [
+  { name: "Owen & Drake", role: "Best Men", photo: owenDrake, focus: "50% 8%" },
+  { name: "James", role: "Groomsman", photo: james, focus: "50% 10%" },
+  { name: "Oliver", role: "Groomsman", photo: oliver, focus: "42% 20%" },
 ];
 
 export const thingsToDo = [

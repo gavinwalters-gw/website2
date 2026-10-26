@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Permanent_Marker } from "next/font/google";
 import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
@@ -19,6 +20,8 @@ const serif = localFont({
 });
 const script = localFont({ src: "./fonts/pinyon-script.woff2", variable: "--font-script", adjustFontFallback: false, preload: false });
 const display = localFont({ src: "./fonts/calgary.woff2", variable: "--font-display", adjustFontFallback: "Times New Roman", preload: false });
+// Permanent Marker is only for the groomsmen's cardboard signs.
+const marker = Permanent_Marker({ weight: "400", subsets: ["latin"], variable: "--font-marker", preload: false });
 
 export const metadata: Metadata = {
   title: "Walters Wedding",
@@ -34,7 +37,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" data-scroll-behavior="smooth" className={`${serif.variable} ${script.variable} ${display.variable}`}>
+    <html lang="en" data-scroll-behavior="smooth" className={`${serif.variable} ${script.variable} ${display.variable} ${marker.variable}`}>
       <body>
         {children}
         {/* The envelope is painted before the page's own script has loaded, and a tap on it then would be
